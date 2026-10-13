@@ -12,8 +12,8 @@
     {{ person_picker("borrower_id", "借用人（借走的人）") }}
   </div>
   <label>卡名列表
-    <textarea name="cards" rows="6" required placeholder="一行一張，或用逗號分隔；加「x數量」指定張數&#10;例如：&#10;Robogon x2&#10;灰流麗 x3, 增殖的G"></textarea>
-    <span class="hint">一次最多 20 筆，省略數量就是 1 張</span>
+    <textarea name="cards" rows="6" required placeholder="一行一張，格式是「數量 卡名」，省略數量就是 1 張&#10;例如：&#10;2 Death's Shadow&#10;4 Ragavan, Nimble Pilferer&#10;Wrenn and Six"></textarea>
+    <span class="hint">一行一張卡，格式「數量 卡名」（例如 2 Death's Shadow），省略數量就是 1 張；一次最多 20 行</span>
   </label>
   <div class="row">
     <label>版本（可選，套用到全部）

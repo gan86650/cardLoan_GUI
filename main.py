@@ -12,13 +12,14 @@ load_dotenv()
 
 import admin_db  # noqa: E402
 import auth  # noqa: E402
+import avatars  # noqa: E402
 import database as db  # noqa: E402
 import guild_members  # noqa: E402
 import member  # noqa: E402
 import member_db  # noqa: E402
 from web import (  # noqa: E402
-    MAX_BATCH_ITEMS, NotLoggedIn, back, days_since, flash, parse_card_batch,
-    redirect, render, require_admin, templates,
+    MAX_BATCH_ITEMS, SESSION_MAX_SECONDS, NotLoggedIn, back, check_session_expiry, days_since,
+    flash, parse_card_batch, redirect, render, require_admin, start_session, templates,
 )
 
 # 選填：沒設就關閉密碼登入，只有 ADMIN_DISCORD_IDS 裡的人能用 Discord 登入當管理員
@@ -53,9 +54,10 @@ MENU = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 不跑 db.init_db()：bot 的資料表與 migration 交給 bot。
-    # GUI 只額外建自己用的 return_requests 表（還牌申請），不動 bot 的表。
+    # GUI 只額外建自己用的 return_requests（還牌申請）和 user_profiles（頭像）表，不動 bot 的表。
     await db.get_pool()
     await member_db.ensure_schema()
+    await avatars.ensure_schema()
     yield
     if db._pool is not None:
         await db._pool.close()
@@ -63,15 +65,25 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+
+
+@app.middleware("http")
+async def session_expiry(request: Request, call_next):
+    check_session_expiry(request)
+    return await call_next(request)
+
+
+# 後加的 middleware 在外層，SessionMiddleware 要包住上面的 session_expiry 才讀得到 session
 app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET,
     same_site="lax",
     https_only=bool(os.getenv("RAILWAY_ENVIRONMENT")),
-    max_age=60 * 60 * 24 * 7,
+    max_age=SESSION_MAX_SECONDS,
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth.router)
+app.include_router(avatars.router)
 app.include_router(member.router)
 templates.env.globals["MENU"] = MENU
 
@@ -99,8 +111,7 @@ async def login_page(request: Request):
 @app.post("/login")
 async def login(request: Request, password: str = Form(...)):
     if ADMIN_PASSWORD and hmac.compare_digest(password.encode(), ADMIN_PASSWORD.encode()):
-        request.session.clear()
-        request.session["admin"] = True
+        start_session(request, admin=True)
         return redirect("/")
     flash(request, "密碼錯誤", "error")
     return redirect("/login")

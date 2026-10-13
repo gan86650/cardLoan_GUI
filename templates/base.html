@@ -4,6 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}借牌管理{% endblock %}</title>
+  <script>
+    // 在畫面出現前套用主題，避免先閃一下淺色
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@400;600&display=swap">
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/picker.js" defer></script>
 </head>
@@ -14,7 +21,7 @@
     <aside class="sidebar">
       {% if me is defined %}
         <a class="brand" href="/me">🃏 借牌</a>
-        <a class="whoami" href="/me/settings" title="改顯示名稱">👋 {{ me_name }}</a>
+        <a class="whoami" href="/me/settings" title="個人設定"><img class="avatar" src="/avatar/{{ me }}" alt="" width="28" height="28">{{ me_name }}</a>
       {% else %}
         <a class="brand" href="/">🃏 借牌管理</a>
       {% endif %}
@@ -54,5 +61,26 @@
     {% block login %}{% endblock %}
   </main>
   {% endif %}
+  <div class="theme-toggle" role="group" aria-label="外觀">
+    <button type="button" data-theme-choice="light" title="淺色">☀️</button>
+    <button type="button" data-theme-choice="dark" title="深色">🌙</button>
+  </div>
+  <script>
+    (() => {
+      // 還沒選過時跟隨系統；按了就記住選擇
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll("[data-theme-choice]");
+      const current = () => root.dataset.theme ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      const sync = () => buttons.forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.themeChoice === current())));
+      buttons.forEach((b) => b.addEventListener("click", () => {
+        root.dataset.theme = b.dataset.themeChoice;
+        try { localStorage.setItem("theme", b.dataset.themeChoice); } catch (e) {}
+        sync();
+      }));
+      sync();
+    })();
+  </script>
 </body>
 </html>

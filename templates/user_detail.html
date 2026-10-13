@@ -2,7 +2,7 @@
 {% from "_macros.html" import loan_table %}
 {% block title %}{{ user.username }} · 借牌管理{% endblock %}
 {% block content %}
-<h1>{{ user.username }} <span class="muted small">{{ user.discord_id }}</span></h1>
+<h1><img class="avatar avatar-lg" src="/avatar/{{ user.discord_id }}" alt="" width="48" height="48"> {{ user.username }} <span class="muted small">{{ user.discord_id }}</span></h1>
 
 <h2>📥 借進來的牌</h2>
 {{ loan_table(borrowed, show_borrower=False) }}

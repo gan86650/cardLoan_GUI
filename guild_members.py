@@ -55,6 +55,7 @@ async def fetch_guild_members(guild_id: str) -> list[dict]:
                     "username": m.get("nick") or user.get("global_name") or user["username"],
                     "nick": m.get("nick") or user.get("global_name") or "",
                     "handle": user["username"],
+                    "avatar": user.get("avatar"),
                 })
             if len(page) < 1000:
                 return members
