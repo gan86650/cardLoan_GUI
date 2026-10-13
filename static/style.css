@@ -1,77 +1,81 @@
 /* ── 配色 ────────────────────────────────────────────────────────────────────
-   Cyberpunk：霓虹青（主色）、洋紅（強調）、警示黃。深色是主要風格，淺色是「白天版」。
+   Cyberpunk 2077：主色是 2077 招牌黃，強調色是紅，連結用青。
+   深色＝黑底黃字；淺色＝2077 選單那種黃底黑字。
    data-theme 由右下角的切換按鈕設定，沒設定時跟隨系統。 */
 :root {
   color-scheme: light;
-  --bg: #e9edf3;
-  --surface: #ffffff;
-  --surface-2: #f4f6fa;
-  --text: #0b0f1a;
-  --muted: #5b6475;
-  --border: #c9d1de;
-  --accent: #008a9e;
-  --accent-2: #c2188f;
-  --accent-text: #ffffff;
-  --glow: rgba(0, 138, 158, .25);
-  --glow-2: rgba(194, 24, 143, .2);
-  --grid: rgba(0, 138, 158, .07);
-  --ok-bg: #ddf5ea;
-  --ok-text: #0a6b3d;
-  --err-bg: #fde3ec;
-  --err-text: #a3123f;
-  --warn: #b36b00;
-  --row-hover: #eef7f9;
-  --shadow: 0 8px 24px rgba(11, 15, 26, .12);
+  --bg: #fcee0a;
+  --surface: #fffbd1;
+  --surface-2: #fff4a3;
+  --text: #0a0a0a;
+  --muted: #5c5622;
+  --border: #0a0a0a;
+  --accent: #0a0a0a;
+  --accent-2: #e0002f;
+  --accent-text: #fcee0a;
+  --link: #00606c;
+  --glow: rgba(0, 0, 0, .18);
+  --glow-2: rgba(224, 0, 47, .22);
+  --grid: rgba(0, 0, 0, .07);
+  --ok-bg: #e2f7c9;
+  --ok-text: #155c00;
+  --err-bg: #ffd3dc;
+  --err-text: #a0001f;
+  --warn: #e0002f;
+  --row-hover: rgba(0, 0, 0, .06);
+  --shadow: 6px 6px 0 #0a0a0a;
   --scanline: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #07080d;
-    --surface: #0f1119;
-    --surface-2: #151826;
-    --text: #e6f1ff;
-    --muted: #7d8aa6;
-    --border: #22283b;
-    --accent: #00e5ff;
-    --accent-2: #ff2bd6;
-    --accent-text: #021014;
-    --glow: rgba(0, 229, 255, .35);
-    --glow-2: rgba(255, 43, 214, .3);
-    --grid: rgba(0, 229, 255, .045);
-    --ok-bg: rgba(0, 255, 157, .08);
-    --ok-text: #3dffb0;
-    --err-bg: rgba(255, 43, 94, .1);
-    --err-text: #ff6b8e;
-    --warn: #fcee0a;
-    --row-hover: rgba(0, 229, 255, .06);
-    --shadow: 0 10px 30px rgba(0, 0, 0, .6);
-    --scanline: rgba(255, 255, 255, .025);
+    --bg: #050505;
+    --surface: #0e0e0c;
+    --surface-2: #171710;
+    --text: #f4f4ec;
+    --muted: #a3a08a;
+    --border: #3d3910;
+    --accent: #fcee0a;
+    --accent-2: #ff003c;
+    --accent-text: #050505;
+    --link: #02d7f2;
+    --glow: rgba(252, 238, 10, .4);
+    --glow-2: rgba(255, 0, 60, .4);
+    --grid: rgba(252, 238, 10, .05);
+    --ok-bg: rgba(0, 255, 159, .09);
+    --ok-text: #00ff9f;
+    --err-bg: rgba(255, 0, 60, .12);
+    --err-text: #ff3d6a;
+    --warn: #ff003c;
+    --row-hover: rgba(252, 238, 10, .08);
+    --shadow: 0 10px 30px rgba(0, 0, 0, .7);
+    --scanline: rgba(255, 255, 255, .03);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #07080d;
-  --surface: #0f1119;
-  --surface-2: #151826;
-  --text: #e6f1ff;
-  --muted: #7d8aa6;
-  --border: #22283b;
-  --accent: #00e5ff;
-  --accent-2: #ff2bd6;
-  --accent-text: #021014;
-  --glow: rgba(0, 229, 255, .35);
-  --glow-2: rgba(255, 43, 214, .3);
-  --grid: rgba(0, 229, 255, .045);
-  --ok-bg: rgba(0, 255, 157, .08);
-  --ok-text: #3dffb0;
-  --err-bg: rgba(255, 43, 94, .1);
-  --err-text: #ff6b8e;
-  --warn: #fcee0a;
-  --row-hover: rgba(0, 229, 255, .06);
-  --shadow: 0 10px 30px rgba(0, 0, 0, .6);
-  --scanline: rgba(255, 255, 255, .025);
+  --bg: #050505;
+  --surface: #0e0e0c;
+  --surface-2: #171710;
+  --text: #f4f4ec;
+  --muted: #a3a08a;
+  --border: #3d3910;
+  --accent: #fcee0a;
+  --accent-2: #ff003c;
+  --accent-text: #050505;
+  --link: #02d7f2;
+  --glow: rgba(252, 238, 10, .4);
+  --glow-2: rgba(255, 0, 60, .4);
+  --grid: rgba(252, 238, 10, .05);
+  --ok-bg: rgba(0, 255, 159, .09);
+  --ok-text: #00ff9f;
+  --err-bg: rgba(255, 0, 60, .12);
+  --err-text: #ff3d6a;
+  --warn: #ff003c;
+  --row-hover: rgba(252, 238, 10, .08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .7);
+  --scanline: rgba(255, 255, 255, .03);
 }
 
 :root {
@@ -108,8 +112,8 @@ body::after {
 
 ::selection { background: var(--accent-2); color: #fff; }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: none; text-shadow: 0 0 8px var(--glow); }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: none; text-shadow: 0 0 8px var(--link); }
 
 main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 72px; }
 
@@ -125,7 +129,7 @@ h1 .small, h2 .small { font-family: var(--font); letter-spacing: 0; text-shadow:
 .small { font-size: .9rem; font-weight: normal; }
 .muted { color: var(--muted); }
 .hint { color: var(--muted); font-size: .85rem; }
-code { font-family: var(--font-mono); color: var(--accent); }
+code { font-family: var(--font-mono); color: var(--link); }
 
 /* ── 版面與側邊選單 ────────────────────────────────────────────────────────── */
 .layout { display: flex; min-height: 100vh; }
@@ -372,4 +376,69 @@ details summary { cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+}
+
+/* ── 2077 強烈版：黃底黑字的重點區塊、故障錯位標題 ───────────────────────── */
+h1 {
+  text-transform: uppercase; color: var(--accent);
+  border-left-width: 6px; border-left-color: var(--accent-2);
+  text-shadow: 2px 0 var(--accent-2), -2px 0 var(--link);
+}
+h1 .small { color: var(--muted); }
+h2 { color: var(--accent); }
+h2::before { content: "▶ "; color: var(--accent-2); font-size: .8em; }
+.brand { color: var(--accent); text-shadow: 2px 0 var(--accent-2), -1px 0 var(--link); }
+
+th { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.table-wrap, .card, .stat, .tile { border-color: var(--accent); }
+.table-wrap { border-width: 1px 1px 1px 4px; clip-path: none; }
+
+.sidebar { border-right: 2px solid var(--accent); box-shadow: 4px 0 24px -12px var(--glow); }
+.sidebar nav a.active {
+  background: var(--accent); color: var(--accent-text); border-left-color: var(--accent-2);
+  box-shadow: none; text-shadow: none;
+}
+.sidebar nav a:hover:not(.active) { border-left-color: var(--accent-2); }
+.nav-group { color: var(--accent-2); }
+
+.stat b { color: var(--accent); text-shadow: 2px 0 var(--accent-2); }
+.stat.warn b { color: var(--warn); text-shadow: 0 0 16px var(--glow-2); }
+.warn { color: var(--warn); text-shadow: 0 0 10px var(--glow-2); }
+
+button, .button { text-transform: uppercase; }
+button:hover, .button:hover { box-shadow: 0 0 18px var(--glow), 3px 3px 0 var(--accent-2); }
+.button.secondary, .small-btn.secondary, .secondary-btn { color: var(--accent); border-color: var(--accent); }
+
+.chip { border-color: var(--accent); }
+.chip:hover { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.chip.waiting { color: var(--warn); border-color: var(--warn); }
+.count { background: var(--accent-2); color: #fff; }
+.callout { border-color: var(--accent-2); border-left-width: 4px; }
+.callout h2 { color: var(--accent-2); }
+.tile:hover { box-shadow: 5px 5px 0 var(--accent-2); }
+tbody tr:hover { box-shadow: inset 4px 0 0 var(--accent-2); }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 16px var(--glow); }
+.picker-list { border-color: var(--accent); }
+.picker-item.active { box-shadow: inset 4px 0 0 var(--accent-2); }
+.theme-toggle { border-color: var(--accent); }
+.flash { border-left-width: 4px; }
+
+/* 淺色（黃底）用硬陰影代替光暈 */
+:root[data-theme="light"] .card, :root[data-theme="light"] .table-wrap { box-shadow: var(--shadow); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .card, :root:not([data-theme="dark"]) .table-wrap { box-shadow: var(--shadow); }
+}
+
+/* 淺色（黃底）時側邊欄改成黑底黃字，像 2077 的選單 */
+:root[data-theme="light"] .sidebar {
+  --text: #fcee0a; --muted: #c9c27a; --surface: #0a0a0a; --surface-2: #161610;
+  --accent: #fcee0a; --accent-text: #0a0a0a; --row-hover: rgba(252, 238, 10, .12); --link: #02d7f2;
+  --accent-2: #ff003c; --border: #fcee0a;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .sidebar {
+    --text: #fcee0a; --muted: #c9c27a; --surface: #0a0a0a; --surface-2: #161610;
+    --accent: #fcee0a; --accent-text: #0a0a0a; --row-hover: rgba(252, 238, 10, .12); --link: #02d7f2;
+    --accent-2: #ff003c; --border: #fcee0a;
+  }
 }
