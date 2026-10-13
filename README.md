@@ -19,7 +19,7 @@
 | 提醒設定（所有人一頁改完） | `/提醒設定` |
 | 歸還紀錄、使用者 | （bot 沒有） |
 
-管理員用密碼登入（登入頁的「管理員登入」），可以代任何人操作。
+管理員可以代任何人操作。`ADMIN_DISCORD_IDS` 裡的人用 Discord 登入就是管理員；本機也可以設 `ADMIN_PASSWORD` 用密碼登入。
 
 ## 一般成員（Discord 登入）
 
@@ -47,7 +47,8 @@
 | 名稱 | 說明 |
 | --- | --- |
 | `DATABASE_URL` | 跟 bot 同一個 PostgreSQL |
-| `ADMIN_PASSWORD` | 管理員登入密碼 |
+| `ADMIN_DISCORD_IDS` | 管理員的 Discord ID（逗號分隔）。這些人用 Discord 登入就有管理員權限，可以在管理員介面和我的借牌之間切換。ID 可以在「個人設定」頁看到 |
+| `ADMIN_PASSWORD` | 選填，管理員密碼登入。不設就關閉密碼登入，只能用 Discord 當管理員 |
 | `SESSION_SECRET` | 簽登入 cookie 用的隨機長字串，例如 `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
 | `DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET` | Discord 登入用，見上方 |
 | `GUILD_ID` | 選填，只讓這些伺服器（逗號分隔）的成員登入；不填就用資料庫裡出現過的伺服器 |
@@ -55,22 +56,43 @@
 | `TIMEZONE` | 選填，顯示時間的時區，預設 `Asia/Taipei` |
 | `DEV_LOGIN` | 本機測試用，設 `1` 時登入頁可以直接選使用者登入；Railway 上設了會拒絕啟動 |
 
-## 本機執行
+## 本機開發（新電腦也照這個做）
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env   # 填好上面的變數
-uvicorn main:app --reload
+需要 Python 3.13 和 Docker Desktop。
+
+```powershell
+git clone https://github.com/gan86650/cardLoan_GUI.git
+cd cardLoan_GUI
+git checkout LocalTest
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+copy .env.example .env          # 照下面說明填
+docker compose up -d            # 本機 PostgreSQL 18，資料存在 Docker volume
+.\.venv\Scripts\python scripts\pull_prod_data.py   # 複製正式資料到本機（要真實資料才需要）
+.\.venv\Scripts\python -m uvicorn main:app --reload
 ```
+
+`.env` 本機用的設定：
+
+```
+DATABASE_URL=postgresql://postgres@localhost:55432/cardloan_local
+ADMIN_PASSWORD=admin
+SESSION_SECRET=隨便一串字
+DEV_LOGIN=1
+SOURCE_DATABASE_URL=Railway Postgres → Variables → DATABASE_PUBLIC_URL
+```
+
+`scripts/pull_prod_data.py` 只會**讀取**正式資料庫，寫入前會檢查 `DATABASE_URL` 一定是 localhost，
+再清空本機資料、換成正式資料的副本。之後想更新成最新資料，再跑一次就好。
 
 ## 部署到 Railway
 
 1. 在 bot 所在的 Railway 專案裡 **New → GitHub Repo**，選這個 repo。
-2. 在新服務的 **Variables** 加上 `ADMIN_PASSWORD`、`SESSION_SECRET`、`DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET`，`DATABASE_URL` 用
+2. 在新服務的 **Variables** 加上 `ADMIN_DISCORD_IDS`、`SESSION_SECRET`、`DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET`，`DATABASE_URL` 用
    `${{Postgres.DATABASE_URL}}` 引用 bot 的資料庫（名稱依你的 Postgres 服務而定）。
 3. **Settings → Networking → Generate Domain** 產生網址。
 
-啟動指令寫在 `Procfile`。
+啟動指令寫在 `railway.json`。`main` branch 就是正式環境，推上去 Railway 會自動重新部署。
 
 ## 注意
 

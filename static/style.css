@@ -172,6 +172,7 @@ tbody tr:hover { background: var(--row-hover); }
 .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
 
 .whoami { padding: 0 8px; color: var(--muted); font-size: .9rem; }
+a.whoami:hover { color: var(--accent); }
 .count {
   margin-left: auto; min-width: 20px; padding: 0 6px; border-radius: 999px;
   background: var(--warn); color: #fff; font-size: .75rem; text-align: center; line-height: 20px;
@@ -185,3 +186,5 @@ form.inline { display: inline; }
 details summary { cursor: pointer; }
 .admin-login { margin-top: 10px; }
 .dev { border: 1px dashed var(--border); border-radius: 8px; padding: 10px; }
+.switch { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: .9rem; margin: 0 8px; }
+.switch:hover { border-color: var(--accent); text-decoration: none; }

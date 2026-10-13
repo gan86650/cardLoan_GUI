@@ -20,7 +20,8 @@ from web import (  # noqa: E402
     redirect, render, require_admin, templates,
 )
 
-ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+# 選填：沒設就關閉密碼登入，只有 ADMIN_DISCORD_IDS 裡的人能用 Discord 登入當管理員
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 SESSION_SECRET = os.environ["SESSION_SECRET"]
 
 # 側邊選單：照 bot 的 /指令說明 分組，首頁也用這份清單
@@ -57,6 +58,7 @@ async def lifespan(app: FastAPI):
     yield
     if db._pool is not None:
         await db._pool.close()
+        db._pool = None
 
 
 app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
@@ -89,12 +91,13 @@ async def login_page(request: Request):
         request, "login.html",
         discord_enabled=auth.DISCORD_ENABLED,
         dev_users=await admin_db.list_users() if auth.DEV_LOGIN else None,
+        password_login=bool(ADMIN_PASSWORD),
     )
 
 
 @app.post("/login")
 async def login(request: Request, password: str = Form(...)):
-    if hmac.compare_digest(password.encode(), ADMIN_PASSWORD.encode()):
+    if ADMIN_PASSWORD and hmac.compare_digest(password.encode(), ADMIN_PASSWORD.encode()):
         request.session.clear()
         request.session["admin"] = True
         return redirect("/")
@@ -385,6 +388,13 @@ async def create_user(request: Request, discord_id: str = Form(...), username: s
     else:
         flash(request, f"{discord_id} 已經存在", "error")
     return redirect("/users")
+
+
+@app.post("/users/{discord_id}/rename", dependencies=admin)
+async def rename_user(request: Request, discord_id: str, username: str = Form(...)):
+    error = await admin_db.rename_user(discord_id, username)
+    flash(request, error or "顯示名稱已更新", "error" if error else "ok")
+    return redirect(f"/users/{discord_id}")
 
 
 @app.get("/users/{discord_id}", response_class=HTMLResponse, dependencies=admin)

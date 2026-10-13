@@ -1,0 +1,16 @@
+# 本機開發用的 PostgreSQL，版本跟 Railway 上的正式資料庫一樣（18）
+#   docker compose up -d
+# 連線字串：postgresql://postgres@localhost:55432/cardloan_local
+services:
+  db:
+    image: postgres:18
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: cardloan_local
+    volumes:
+      - cardloan-db:/var/lib/postgresql
+
+volumes:
+  cardloan-db:

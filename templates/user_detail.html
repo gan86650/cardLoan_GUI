@@ -10,6 +10,14 @@
 <h2>📤 借出去的牌</h2>
 {{ loan_table(lent, show_lender=False) }}
 
+<form method="post" action="/users/{{ user.discord_id }}/rename" class="card stack narrow-left">
+  <h2>✏️ 顯示名稱</h2>
+  <label>名稱
+    <input name="username" value="{{ user.username }}" required maxlength="32">
+  </label>
+  <button>儲存</button>
+</form>
+
 <form method="post" action="/users/{{ user.discord_id }}/reminder" class="card stack narrow-left">
   <h2>🔔 到期提醒</h2>
   <label class="check">

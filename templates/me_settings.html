@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}個人設定{% endblock %}
+{% block content %}
+<h1>⚙️ 個人設定</h1>
+
+<form method="post" class="card stack narrow-left">
+  <h2>顯示名稱</h2>
+  <p class="hint">大家在網站上看到的你的名字，例如借牌紀錄、下拉選單。不會改到你的 Discord 名稱。</p>
+  <label>名稱
+    <input name="username" value="{{ user.username }}" required maxlength="{{ max_len }}" autofocus>
+  </label>
+  <span class="hint">最多 {{ max_len }} 個字，不能跟別人重複</span>
+  <button>儲存</button>
+</form>
+
+<p class="hint">你的 Discord ID：<code>{{ user.discord_id }}</code></p>
+{% endblock %}

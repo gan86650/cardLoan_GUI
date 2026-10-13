@@ -40,14 +40,18 @@ MEMBER_MENU = [
         ("/me/overview", "📋", "借牌總覽", "伺服器所有未還紀錄"),
         ("/me/between", "🔍", "查借牌", "你跟某人之間的借貸狀況"),
     ]),
+    ("設定", [
+        ("/me/settings", "⚙️", "個人設定", "改你在網站上顯示的名稱"),
+    ]),
 ]
 
 
 async def render(request: Request, name: str, me: str, **context):
     approvals = await member_db.pending_for_lender(me)
+    user = await db.get_user(me)
     return _render(
         request, name,
-        menu=MEMBER_MENU, me=me, me_name=request.session.get("username"),
+        menu=MEMBER_MENU, me=me, me_name=user["username"] if user else "",
         approval_count=len(approvals), **context,
     )
 
@@ -361,3 +365,24 @@ async def transfer(
     else:
         flash(request, f"#{loan_id} {loan['card_name']} 已轉借給 {new_user['username']}（牌主還是 {loan['lender_name']}）")
     return redirect(target)
+
+
+# ── 個人設定 ──────────────────────────────────────────────────────────────────
+@router.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request, me: str = Depends(require_member)):
+    user = await db.get_user(me)
+    return await render(
+        request, "me_settings.html", me, user=user, max_len=admin_db.MAX_NAME_LENGTH,
+    )
+
+
+@router.post("/settings")
+async def update_settings(request: Request, username: str = Form(...), me: str = Depends(require_member)):
+    error = await admin_db.rename_user(me, username)
+    if error:
+        flash(request, error, "error")
+    else:
+        user = await db.get_user(me)
+        request.session["username"] = user["username"]
+        flash(request, f"顯示名稱已改成「{user['username']}」")
+    return redirect("/me/settings")

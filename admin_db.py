@@ -90,3 +90,25 @@ async def add_user(discord_id: str, username: str) -> bool:
             discord_id, username,
         )
         return result.endswith(" 1")
+
+
+MAX_NAME_LENGTH = 32
+
+
+async def rename_user(discord_id: str, name: str) -> str | None:
+    """改顯示名稱；成功回傳 None，失敗回傳錯誤訊息。名稱不分大小寫不能跟別人重複。"""
+    name = " ".join(name.split())
+    if not name:
+        return "名稱不可空白"
+    if len(name) > MAX_NAME_LENGTH:
+        return f"名稱最多 {MAX_NAME_LENGTH} 個字"
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        taken = await conn.fetchval(
+            "SELECT 1 FROM users WHERE LOWER(username) = LOWER($1) AND discord_id <> $2",
+            name, discord_id,
+        )
+        if taken:
+            return f"「{name}」已經有人用了，換一個吧"
+        await conn.execute("UPDATE users SET username=$1 WHERE discord_id=$2", name, discord_id)
+    return None

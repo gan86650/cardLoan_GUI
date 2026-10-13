@@ -20,6 +20,9 @@ DEV_LOGIN = os.getenv("DEV_LOGIN") == "1"
 if DEV_LOGIN and os.getenv("RAILWAY_ENVIRONMENT"):
     raise RuntimeError("DEV_LOGIN 只能在本機使用，Railway 上請拿掉這個變數")
 
+# 這些 Discord ID 用 Discord 登入時會同時拿到管理員權限（逗號分隔）
+ADMIN_DISCORD_IDS = {i.strip() for i in os.getenv("ADMIN_DISCORD_IDS", "").split(",") if i.strip()}
+
 API = "https://discord.com/api/v10"
 
 router = APIRouter()
@@ -60,7 +63,8 @@ async def _sign_in(request: Request, discord_id: str, fallback_name: str):
     # 新使用者才寫入；已存在的保留 bot 同步的伺服器暱稱
     await admin_db.add_user(discord_id, fallback_name)
     user = await db.get_user(discord_id)
-    request.session.pop("admin", None)
+    request.session.clear()
+    request.session["admin"] = discord_id in ADMIN_DISCORD_IDS
     request.session["user_id"] = discord_id
     request.session["username"] = user["username"]
 
@@ -101,7 +105,7 @@ async def discord_callback(request: Request, code: str = "", state: str = ""):
         return redirect("/login")
 
     await _sign_in(request, me["id"], me.get("global_name") or me["username"])
-    return redirect("/me")
+    return redirect("/")
 
 
 @router.post("/dev-login")
@@ -113,4 +117,4 @@ async def dev_login(request: Request, discord_id: str = Form(...)):
         flash(request, "找不到這個使用者", "error")
         return redirect("/login")
     await _sign_in(request, discord_id, user["username"])
-    return redirect("/me")
+    return redirect("/")
