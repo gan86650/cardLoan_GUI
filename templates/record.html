@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_macros.html" import user_options, guild_field %}
+{% block title %}記錄借牌 · 借牌管理{% endblock %}
+{% block content %}
+<h1>📥 借牌／借出／紀錄他人</h1>
+<p class="muted">bot 的 /借牌、/借出、/紀錄他人 都是記錄「誰借給誰」，管理員在這裡直接選兩邊就好。</p>
+
+<form method="post" class="card stack">
+  {{ guild_field(guilds, default_guild) }}
+  <div class="row">
+    <label>牌主（借出的人）
+      <select name="lender_id" required>{{ user_options(users, "", "請選擇") }}</select>
+    </label>
+    <label>借用人（借走的人）
+      <select name="borrower_id" required>{{ user_options(users, "", "請選擇") }}</select>
+    </label>
+  </div>
+  <div class="row">
+    <label>卡名
+      <input name="card_name" list="card-names" required autocomplete="off">
+    </label>
+    <label>數量
+      <input type="number" name="quantity" min="1" value="1" required>
+    </label>
+  </div>
+  <div class="row">
+    <label>版本（可選）
+      <input name="edition" placeholder="例如 EN-001、Alpha">
+    </label>
+    <label>備註（可選）
+      <input name="note">
+    </label>
+  </div>
+  <datalist id="card-names">
+    {% for c in card_names %}<option value="{{ c }}">{% endfor %}
+  </datalist>
+  <p class="hint">名單裡沒有的人，請先到 <a href="/users">使用者</a> 頁新增。要一次記很多張請用 <a href="/batch">批次紀錄</a>。</p>
+  <button>新增紀錄</button>
+</form>
+{% endblock %}

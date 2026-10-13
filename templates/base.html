@@ -8,22 +8,34 @@
 </head>
 <body>
   {% if request.session.get("admin") %}
-  <header class="topbar">
-    <a class="brand" href="/">🃏 借牌管理</a>
-    <nav>
-      <a href="/" class="{{ 'active' if request.url.path == '/' }}">借牌總覽</a>
-      <a href="/loans/new" class="{{ 'active' if request.url.path == '/loans/new' }}">新增紀錄</a>
-      <a href="/users" class="{{ 'active' if request.url.path.startswith('/users') }}">使用者</a>
-      <a href="/history" class="{{ 'active' if request.url.path == '/history' }}">歸還紀錄</a>
-    </nav>
-    <form method="post" action="/logout"><button class="link">登出</button></form>
-  </header>
-  {% endif %}
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="/">🃏 借牌管理</a>
+      <nav>
+        <a href="/" class="{{ 'active' if request.url.path == '/' }}"><span>❓</span>所有功能</a>
+        {% for group, items in MENU %}
+          <div class="nav-group">{{ group }}</div>
+          {% for href, icon, label, desc in items %}
+            <a href="{{ href }}" class="{{ 'active' if request.url.path == href }}"><span>{{ icon }}</span>{{ label }}</a>
+          {% endfor %}
+        {% endfor %}
+      </nav>
+      <form method="post" action="/logout"><button class="link">登出</button></form>
+    </aside>
+    <main>
+      {% for m in messages %}
+        <div class="flash {{ m.kind }}">{{ m.message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  {% else %}
   <main>
     {% for m in messages %}
       <div class="flash {{ m.kind }}">{{ m.message }}</div>
     {% endfor %}
-    {% block content %}{% endblock %}
+    {% block login %}{% endblock %}
   </main>
+  {% endif %}
 </body>
 </html>

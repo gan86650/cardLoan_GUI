@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_option %}
+{% set title = "✅ 還牌" if mode == "return" else "📬 已取回" %}
+{% set verb = "歸還" if mode == "return" else "取回" %}
+{% block title %}{{ title }} · 借牌管理{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p class="muted">
+  {% if mode == "return" %}借用人把牌還給牌主。{% else %}牌主自行標記牌已經拿回來。{% endif %}
+  數量留空就是全部{{ verb }}，填比較少就是部分{{ verb }}，剩下的繼續算借出中。
+</p>
+
+{% if loans %}
+<form method="post" action="/{{ mode }}" class="card stack"
+      onsubmit="return confirm('確定要標記{{ verb }}嗎？')">
+  <label>借牌紀錄
+    <select name="loan_id" required>
+      <option value="">請選擇</option>
+      {% for l in loans %}{{ loan_option(l, selected) }}{% endfor %}
+    </select>
+  </label>
+  <label>{{ verb }}數量（可選）
+    <input type="number" name="quantity" min="1" placeholder="留空 = 全部">
+  </label>
+  <button>標記{{ verb }}</button>
+</form>
+{% else %}
+  <p class="empty">目前沒有未還的紀錄</p>
+{% endif %}
+{% endblock %}

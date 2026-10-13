@@ -19,9 +19,10 @@
 
 {% if not loan.returned_at %}
 <div class="grid2">
-  <form method="post" action="/loans/{{ loan.id }}/return" class="card stack"
+  <form method="post" action="/return" class="card stack"
         onsubmit="return confirm('確定要標記歸還嗎？')">
-    <h2>還牌</h2>
+    <h2>還牌／已取回</h2>
+    <input type="hidden" name="loan_id" value="{{ loan.id }}">
     <label>歸還數量
       <input type="number" name="quantity" min="1" max="{{ loan.quantity }}" value="{{ loan.quantity }}" required>
     </label>
@@ -29,9 +30,10 @@
     <button>標記歸還</button>
   </form>
 
-  <form method="post" action="/loans/{{ loan.id }}/transfer" class="card stack"
+  <form method="post" action="/transfer" class="card stack"
         onsubmit="return confirm('確定要轉借嗎？')">
     <h2>轉借</h2>
+    <input type="hidden" name="loan_id" value="{{ loan.id }}">
     <label>新借用人
       <select name="new_borrower_id" required>
         <option value="">請選擇</option>

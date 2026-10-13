@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_table, user_options %}
+{% block title %}查借牌 · 借牌管理{% endblock %}
+{% block content %}
+<h1>🔍 查借牌</h1>
+<p class="muted">兩個人之間雙向的未還紀錄。</p>
+
+<form method="get" class="filters card">
+  <label>第一個人
+    <select name="a" required>{{ user_options(users, a, "請選擇") }}</select>
+  </label>
+  <label>第二個人
+    <select name="b" required>{{ user_options(users, b, "請選擇") }}</select>
+  </label>
+  <div class="filter-actions"><button>查詢</button></div>
+</form>
+
+{% if a and b and a == b %}
+  <p class="empty">請選兩個不同的人</p>
+{% elif loans is not none %}
+  {{ loan_table(loans) }}
+{% endif %}
+{% endblock %}

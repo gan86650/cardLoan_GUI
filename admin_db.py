@@ -59,6 +59,13 @@ async def search_active_loans(guild_id: str | None, user_id: str | None, card: s
         )
 
 
+async def list_card_names() -> list[str]:
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("SELECT DISTINCT card_name FROM loans ORDER BY card_name")
+        return [r["card_name"] for r in rows]
+
+
 async def get_loan_any(loan_id: int):
     pool = await get_pool()
     async with pool.acquire() as conn:

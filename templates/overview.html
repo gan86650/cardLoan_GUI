@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% from "_macros.html" import loan_table, user_options %}
+{% block title %}借牌總覽 · 借牌管理{% endblock %}
 {% block content %}
-<h1>借牌總覽 <span class="muted small">{{ loans | length }} 筆、共 {{ total_qty }} 張未還</span></h1>
+<h1>📋 借牌總覽 <span class="muted small">{{ loans | length }} 筆、共 {{ total_qty }} 張未還</span></h1>
 
 <form method="get" class="filters card">
   {% if guilds | length > 1 %}
@@ -12,18 +13,15 @@
     </select>
   </label>
   {% endif %}
-  <label>使用者
+  <label>使用者（牌主或借用人）
     <select name="user">{{ user_options(users, filters.user, "全部") }}</select>
-  </label>
-  <label>與另一人之間
-    <select name="user_b">{{ user_options(users, filters.user_b, "（不限）") }}</select>
   </label>
   <label>卡名
     <input type="search" name="card" value="{{ filters.card }}" placeholder="關鍵字">
   </label>
   <div class="filter-actions">
     <button>篩選</button>
-    <a href="/" class="button secondary">清除</a>
+    <a href="/overview" class="button secondary">清除</a>
   </div>
 </form>
 

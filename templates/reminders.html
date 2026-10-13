@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}提醒設定 · 借牌管理{% endblock %}
+{% block content %}
+<h1>🔔 提醒設定</h1>
+<p class="muted">開啟後，借牌超過設定天數，bot 每天會提醒這個人還牌。</p>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>使用者</th><th class="num">借進未還</th><th>提醒</th><th>天數</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td><a href="/users/{{ u.discord_id }}">{{ u.username }}</a></td>
+      <td class="num">{{ u.borrowed_qty or "" }}</td>
+      {% set f = "reminder-" ~ u.discord_id %}
+      <td><label class="check"><input type="checkbox" name="enabled" form="{{ f }}" {{ 'checked' if u.reminder_enabled }}> 開啟</label></td>
+      <td><input type="number" name="days" form="{{ f }}" min="1" value="{{ u.reminder_days or 14 }}" required class="days-input"> 天</td>
+      <td>
+        <form method="post" action="/users/{{ u.discord_id }}/reminder" id="{{ f }}">
+          <button class="small-btn">儲存</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_table %}
+{% block content %}
+<h1>所有功能</h1>
+<p class="muted">每個 Discord 指令在這裡都有對應的頁面，管理員可以代任何人操作。</p>
+
+<div class="stats">
+  <a class="stat" href="/overview"><b>{{ active_count }}</b><span>筆未還紀錄</span></a>
+  <a class="stat" href="/overview"><b>{{ active_qty }}</b><span>張牌還在外面</span></a>
+  <div class="stat {{ 'warn' if overdue }}"><b>{{ overdue | length }}</b><span>筆借超過 14 天</span></div>
+</div>
+
+{% for group, items in MENU %}
+  <h2>{{ group }}</h2>
+  <div class="tiles">
+    {% for href, icon, label, desc in items %}
+      <a class="tile" href="{{ href }}">
+        <span class="tile-icon">{{ icon }}</span>
+        <b>{{ label }}</b>
+        <span class="muted">{{ desc }}</span>
+      </a>
+    {% endfor %}
+  </div>
+{% endfor %}
+
+{% if overdue %}
+  <h2>⚠️ 借超過 14 天的牌</h2>
+  {{ loan_table(overdue) }}
+{% endif %}
+{% endblock %}

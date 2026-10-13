@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_table, user_options %}
+{% set title = "📥 借進來的牌" if mode == "borrowed" else "📤 借出去的牌" %}
+{% block title %}{{ title }} · 借牌管理{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+
+<form method="get" class="filters card">
+  <label>{{ "借用人" if mode == "borrowed" else "牌主" }}
+    <select name="user" onchange="this.form.submit()">{{ user_options(users, user, "請選擇") }}</select>
+  </label>
+  <div class="filter-actions"><button>查詢</button></div>
+</form>
+
+{% if loans is not none %}
+  {% if mode == "borrowed" %}
+    {{ loan_table(loans, show_borrower=False) }}
+  {% else %}
+    {{ loan_table(loans, show_lender=False) }}
+  {% endif %}
+{% endif %}
+{% endblock %}
