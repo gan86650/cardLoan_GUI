@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}借牌管理{% endblock %}</title>
+  <script>
+    // 在畫面出現前套用主題，避免先閃一下淺色
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/picker.js" defer></script>
 </head>
@@ -54,5 +58,25 @@
     {% block login %}{% endblock %}
   </main>
   {% endif %}
+  <div class="theme-toggle" role="group" aria-label="外觀">
+    <button type="button" data-theme-choice="light" title="淺色">☀️</button>
+    <button type="button" data-theme-choice="auto" title="跟隨系統">🖥️</button>
+    <button type="button" data-theme-choice="dark" title="深色">🌙</button>
+  </div>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll("[data-theme-choice]");
+      const sync = () => buttons.forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.themeChoice === (root.dataset.theme || "auto"))));
+      buttons.forEach((b) => b.addEventListener("click", () => {
+        const choice = b.dataset.themeChoice;
+        if (choice === "auto") delete root.dataset.theme; else root.dataset.theme = choice;
+        try { choice === "auto" ? localStorage.removeItem("theme") : localStorage.setItem("theme", choice); } catch (e) {}
+        sync();
+      }));
+      sync();
+    })();
+  </script>
 </body>
 </html>
