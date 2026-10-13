@@ -25,7 +25,6 @@
   --warn: #c2005a;
   --row-hover: rgba(209, 0, 111, .06);
   --shadow: 0 10px 30px rgba(60, 20, 90, .15);
-  --skyline-opacity: .1;
   --rain: rgba(80, 60, 140, .05);
   --title: #1b1030;
 }
@@ -55,7 +54,6 @@
     --warn: #fcee0a;
     --row-hover: rgba(34, 228, 255, .07);
     --shadow: 0 12px 40px rgba(0, 0, 0, .55);
-    --skyline-opacity: .6;
     --rain: rgba(160, 220, 255, .06);
     --title: #ffffff;
   }
@@ -84,7 +82,6 @@
   --warn: #fcee0a;
   --row-hover: rgba(34, 228, 255, .07);
   --shadow: 0 12px 40px rgba(0, 0, 0, .55);
-  --skyline-opacity: .6;
   --rain: rgba(160, 220, 255, .06);
   --title: #ffffff;
 }
@@ -98,10 +95,10 @@
   --clip-sm: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
 }
 
-/* ── 背景：夜空 → 霓虹霧氣，天際線剪影，細雨 ──────────────────────────────── */
+/* ── 背景：夜空 → 霓虹霧氣，細雨 ──────────────────────────────── */
 * { box-sizing: border-box; }
 
-/* 背景放在 html 上，body 透明，天際線與雨（z-index -1）才會疊在背景之上、內容之下 */
+/* 背景放在 html 上，body 透明，雨（z-index -1）才會疊在背景之上、內容之下 */
 html {
   background:
     radial-gradient(1000px 520px at 60% -12%, var(--sky-top), transparent 70%),
@@ -114,15 +111,6 @@ body {
   margin: 0; min-height: 100vh;
   color: var(--text);
   font: 15px/1.55 var(--font);
-}
-body::before {
-  /* 城市天際線（static/skyline.svg，自己產生的剪影） */
-  content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 42vh; z-index: -1;
-  background: url("/static/skyline.svg") bottom center / cover no-repeat;
-  opacity: var(--skyline-opacity);
-  -webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
-  mask-image: linear-gradient(to top, #000 55%, transparent);
-  pointer-events: none;
 }
 body::after {
   /* 斜斜的細雨 */
@@ -414,103 +402,110 @@ details summary { cursor: pointer; }
   body::after { animation: none; }
 }
 
-/* ── 霓虹漸層：桃紅 → 紫 → 青（參考圖的招牌與街景色） ───────────────────── */
-:root {
-  --neon: linear-gradient(90deg, #ff2a9d, #b13cff 50%, #22e4ff);
-  --neon-v: linear-gradient(180deg, #22e4ff, #b13cff 50%, #ff2a9d);
-}
+/* ── 背景：霓虹漸層天空（上青、中紫、下桃紅） ───────────────────────────── */
+:root { --sky: linear-gradient(180deg, #d4f4fa 0%, #e9e4fb 45%, #fbdcef 80%, #ffcfe6 100%); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --sky: linear-gradient(180deg, #06323f 0%, #0a1830 30%, #1a0a33 62%, #3a0634 85%, #5a0a45 100%);
+    --sky: linear-gradient(180deg, #063a48 0%, #0b1a38 32%, #22093f 62%, #4a0740 86%, #6b0a4f 100%);
   }
 }
 :root[data-theme="dark"] {
-  --sky: linear-gradient(180deg, #06323f 0%, #0a1830 30%, #1a0a33 62%, #3a0634 85%, #5a0a45 100%);
+  --sky: linear-gradient(180deg, #063a48 0%, #0b1a38 32%, #22093f 62%, #4a0740 86%, #6b0a4f 100%);
 }
-:root {
-  --sky: linear-gradient(180deg, #d9f6fb 0%, #eee6fb 45%, #fbe0f0 80%, #ffd0e8 100%);
-}
-
-/* 整片天空漸層 + 上方青光、下方桃紅霧 */
 html {
   background:
     radial-gradient(900px 460px at 55% -8%, var(--sky-top), transparent 70%),
-    radial-gradient(1100px 420px at 30% 112%, var(--haze), transparent 70%),
+    radial-gradient(1100px 420px at 25% 112%, var(--haze), transparent 70%),
     radial-gradient(800px 380px at 92% 108%, var(--glow-cyan), transparent 70%),
     var(--sky);
   background-attachment: fixed;
 }
 
-/* 漸層文字標題 */
+/* ── 前景：Cyberpunk 2077 風的單一實色 ──────────────────────────────────────
+   主色用霓虹青（跟背景的青→桃紅漸層最搭），桃紅只當錯位陰影之類的小點綴。 */
+:root {
+  --main: #007f91;          /* 主色 */
+  --main-text: #ffffff;     /* 主色上的文字 */
+  --panel: rgba(255, 255, 255, .9);
+  --panel-border: #007f91;
+  --pop: #d1006f;           /* 點綴色 */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --main: #00f0ff; --main-text: #04070f;
+    --panel: rgba(6, 10, 22, .88); --panel-border: #00f0ff; --pop: #ff2a9d;
+  }
+}
+:root[data-theme="dark"] {
+  --main: #00f0ff; --main-text: #04070f;
+  --panel: rgba(6, 10, 22, .88); --panel-border: #00f0ff; --pop: #ff2a9d;
+}
+
+/* 標題：實色＋2077 的紅青錯位 */
 h1 {
-  background: var(--neon); -webkit-background-clip: text; background-clip: text;
-  color: transparent; text-shadow: none;
-  filter: drop-shadow(0 0 8px rgba(255, 42, 157, .55)) drop-shadow(0 0 18px rgba(34, 228, 255, .25));
-  width: fit-content;
+  color: var(--main); text-transform: uppercase;
+  text-shadow: 2px 0 0 var(--pop), 0 0 18px var(--glow-cyan);
+  padding-left: 12px; border-left: 5px solid var(--main);
 }
-h1 .small { -webkit-text-fill-color: var(--muted); }
-h1::after { background: var(--neon); width: 100%; min-width: 72px; }
-.brand {
-  background: var(--neon); -webkit-background-clip: text; background-clip: text; color: transparent;
-  text-shadow: none; filter: drop-shadow(0 0 8px rgba(255, 42, 157, .7));
-}
-.stat b {
-  background: var(--neon); -webkit-background-clip: text; background-clip: text; color: transparent;
-  text-shadow: none; filter: drop-shadow(0 0 10px rgba(177, 60, 255, .5)); width: fit-content;
-}
-.stat.warn b { background: none; color: var(--warn); filter: drop-shadow(0 0 10px var(--warn)); }
-.stat { border-bottom: 0; }
-.stat::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--neon); }
-.stat.warn::after { background: var(--warn); }
+h1::after { display: none; }
+h1 .small { color: var(--muted); text-shadow: none; }
+h2 { color: var(--main); text-shadow: none; }
+h2::before { content: "▶ "; color: var(--pop); font-size: .8em; }
+.brand { color: var(--main); text-shadow: 2px 0 0 #ff2a9d; }
+.sidebar .brand { color: #00f0ff; }
 
-/* 漸層邊框的卡片與表格 */
-.card, .table-wrap, .callout {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(var(--surface-solid-a), var(--surface-solid-a)) padding-box,
-    var(--neon) border-box;
+/* 卡片、表格、統計：深色實底＋主色細框，不用漸層 */
+.card, .table-wrap, .stat, .tile, .callout {
+  background: var(--panel); border: 1px solid var(--panel-border);
+  backdrop-filter: blur(6px); box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
 }
-:root { --surface-solid-a: rgba(255, 255, 255, .85); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --surface-solid-a: rgba(10, 12, 30, .8); } }
-:root[data-theme="dark"] { --surface-solid-a: rgba(10, 12, 30, .8); }
-.card::before { background: var(--neon); right: 16px; box-shadow: 0 0 14px rgba(255, 42, 157, .6); }
-.table-wrap { border-left: 1px solid transparent; }
-.callout { background: linear-gradient(var(--surface-solid-a), var(--surface-solid-a)) padding-box, linear-gradient(90deg, var(--warn), #ff2a9d) border-box; }
+.card::before { background: var(--main); right: auto; width: 48px; box-shadow: 0 0 10px var(--glow-cyan); }
+.card::after { background: linear-gradient(135deg, transparent 50%, var(--main) 50%); }
+.table-wrap { border-left: 4px solid var(--main); }
+.callout { border-color: var(--warn); border-left-width: 4px; }
 
-/* 表頭：桃紅→紫→青的霓虹燈條 */
+/* 表頭：主色實底、深色字 */
 th {
-  background: linear-gradient(90deg, rgba(255, 42, 157, .55), rgba(177, 60, 255, .4) 50%, rgba(34, 228, 255, .35));
-  color: #fff; border-bottom: 0; text-shadow: 0 0 6px rgba(0, 0, 0, .4);
+  background: var(--main); color: var(--main-text); font-weight: 600;
+  border-bottom: 0; text-shadow: none;
 }
-tbody tr:hover { box-shadow: inset 3px 0 0 #ff2a9d; background: linear-gradient(90deg, rgba(255, 42, 157, .1), rgba(34, 228, 255, .04)); }
+tbody tr:hover { background: var(--row-hover); box-shadow: inset 4px 0 0 var(--pop); }
 
-/* 按鈕 */
-button, .button { background: var(--neon); color: #fff; text-shadow: 0 0 6px rgba(0, 0, 0, .35); }
-button:hover, .button:hover { filter: brightness(1.15) drop-shadow(0 0 10px rgba(255, 42, 157, .6)); }
-.button.secondary, .small-btn.secondary, .secondary-btn { background: transparent; color: var(--link); text-shadow: none; }
-button.link, .theme-toggle button { background: transparent; text-shadow: none; }
-.theme-toggle button[aria-pressed="true"] { background: var(--neon); }
-.button.discord { background: #5865f2; }
+/* 按鈕：主色實底、深色字，滑過時桃紅錯位陰影 */
+button, .button {
+  background: var(--main); color: var(--main-text); text-shadow: none;
+}
+button:hover, .button:hover { filter: brightness(1.1); box-shadow: 3px 3px 0 var(--pop); }
+.button.secondary, .small-btn.secondary, .secondary-btn {
+  background: transparent; color: var(--main); box-shadow: inset 0 0 0 1px var(--main);
+}
+button.link, .theme-toggle button { background: transparent; color: var(--muted); box-shadow: none; }
+button.link:hover { color: var(--pop); }
+.theme-toggle { border-color: var(--main); }
+.theme-toggle button[aria-pressed="true"] { background: var(--main); color: var(--main-text); }
+.button.discord { background: #5865f2; color: #fff; }
 
-/* 側邊欄：直向漸層夜空 + 右緣霓虹燈管 */
+/* 統計、功能磚、標籤 */
+.stat { border-bottom: 3px solid var(--main); }
+.stat b { color: var(--main); text-shadow: 2px 0 0 var(--pop); }
+.stat.warn { border-bottom-color: var(--warn); }
+.stat.warn b { color: var(--warn); text-shadow: 0 0 12px var(--warn); }
+.tile:hover { border-color: var(--main); box-shadow: 5px 5px 0 var(--pop); transform: translate(-2px, -2px); }
+.chip { color: var(--main); box-shadow: inset 0 0 0 1px var(--main); }
+.chip:hover { background: var(--main); color: var(--main-text); }
+a { color: var(--main); }
+input:focus, select:focus, textarea:focus { border-color: var(--main); box-shadow: 0 0 0 1px var(--main), 0 0 14px var(--glow-cyan); }
+.picker-list { border-color: var(--main); }
+.picker-item.active { box-shadow: inset 4px 0 0 var(--pop); }
+
+/* 側邊欄：深色實底＋右緣主色線，目前所在的選單主色實底 */
 .sidebar {
-  background: linear-gradient(180deg, rgba(6, 40, 52, .92), rgba(16, 10, 40, .92) 50%, rgba(60, 6, 52, .92));
-  border-right: 0; box-shadow: none; position: sticky;
-}
-.sidebar::after {
-  content: ""; position: absolute; top: 0; right: 0; width: 2px; height: 100%;
-  background: var(--neon-v); box-shadow: 0 0 14px rgba(255, 42, 157, .7);
+  background: rgba(4, 7, 16, .92); border-right: 2px solid #00f0ff;
+  box-shadow: 0 0 22px rgba(0, 240, 255, .35);
 }
 .sidebar nav a.active {
-  background: linear-gradient(90deg, rgba(255, 42, 157, .55), rgba(177, 60, 255, .3) 60%, transparent);
+  background: #00f0ff; color: #04070f; text-shadow: none; border-left-color: #ff2a9d; font-weight: 700;
 }
-.nav-group { background: var(--neon); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.nav-group::before { -webkit-text-fill-color: #fcee0a; }
-
-/* 功能磚滑過時亮起霓虹漸層外框 */
-.tile:hover { box-shadow: none; background: linear-gradient(var(--surface-solid-a), var(--surface-solid-a)) padding-box, var(--neon) border-box; border-color: transparent; }
-.chip:hover { background: var(--neon); color: #fff; box-shadow: none; }
-.picker-list { border: 1px solid transparent; background: linear-gradient(var(--surface-solid), var(--surface-solid)) padding-box, var(--neon) border-box; }
-/* 漸層文字會把 emoji 也染色，開頭的 emoji 保留原色 */
-h1::first-letter, .brand::first-letter { -webkit-text-fill-color: initial; color: #fff; }
-.brand { display: block; width: fit-content; }
+.sidebar nav a:hover:not(.active) { border-left-color: #ff2a9d; }
+.nav-group { color: #00f0ff; }
+.nav-group::before { color: #ff2a9d; }
