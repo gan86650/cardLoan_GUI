@@ -21,7 +21,7 @@
     <aside class="sidebar">
       {% if me is defined %}
         <a class="brand" href="/me">🃏 借牌</a>
-        <a class="whoami" href="/me/settings" title="改顯示名稱">👋 {{ me_name }}</a>
+        <a class="whoami" href="/me/settings" title="個人設定"><img class="avatar" src="/avatar/{{ me }}" alt="" width="28" height="28">{{ me_name }}</a>
       {% else %}
         <a class="brand" href="/">🃏 借牌管理</a>
       {% endif %}

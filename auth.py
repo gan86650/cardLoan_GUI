@@ -7,6 +7,7 @@ import httpx
 from fastapi import APIRouter, Form, Request
 
 import admin_db
+import avatars
 import database as db
 from web import flash, redirect, start_session
 
@@ -59,9 +60,11 @@ async def fetch_discord_identity(code: str, redirect_uri: str) -> tuple[dict, li
         return me.json(), guilds.json()
 
 
-async def _sign_in(request: Request, discord_id: str, fallback_name: str):
+async def _sign_in(request: Request, discord_id: str, fallback_name: str, avatar_hash: str | None = None):
     # 新使用者才寫入；已存在的保留 bot 同步的伺服器暱稱
     await admin_db.add_user(discord_id, fallback_name)
+    if avatar_hash is not None:
+        await avatars.set_discord_avatar(discord_id, avatar_hash)
     start_session(request, admin=discord_id in ADMIN_DISCORD_IDS, user_id=discord_id)
 
 
@@ -100,7 +103,7 @@ async def discord_callback(request: Request, code: str = "", state: str = ""):
         flash(request, "只有借牌伺服器的成員可以登入", "error")
         return redirect("/login")
 
-    await _sign_in(request, me["id"], me.get("global_name") or me["username"])
+    await _sign_in(request, me["id"], me.get("global_name") or me["username"], me.get("avatar") or "")
     return redirect("/")
 
 

@@ -33,8 +33,10 @@
 | 轉借 | 目前的借用人 | 直接寫入（有還牌申請在等時不能轉借） |
 | 我的借牌、借牌總覽、查借牌 | 所有成員 | 只讀 |
 
-成員不能新增使用者，也看不到管理員頁面。還牌申請存在 GUI 自己建的 `return_requests` 表，
-啟動時自動建立，不會動到 bot 的 `users`、`loans` 表。
+成員不能新增使用者，也看不到管理員頁面。成員可以在「個人設定」改顯示名稱和頭像（沒上傳就用 Discord 頭像）。
+
+還牌申請存在 GUI 自己建的 `return_requests` 表，自訂頭像存在 `user_profiles` 表，
+都是啟動時自動建立，不會動到 bot 的 `users`、`loans` 表。
 
 ### 設定 Discord 登入
 
@@ -100,5 +102,5 @@ SOURCE_DATABASE_URL=Railway Postgres → Variables → DATABASE_PUBLIC_URL
 ## 注意
 
 - `database.py` 是從 bot repo 複製過來的，bot 那邊改了 SQL 記得同步。
-- GUI 不會建 bot 的表或跑 bot 的 migration，這些交給 bot 啟動時處理；只會建自己的 `return_requests`。
+- GUI 不會建 bot 的表或跑 bot 的 migration，這些交給 bot 啟動時處理；只會建自己的 `return_requests` 和 `user_profiles`。
 - 有設 `DISCORD_TOKEN` 時，記錄和轉借的下拉選單會列出整個伺服器的成員，被選到的新成員會自動加進 `users`；沒設時只列出 `users` 表裡的人。

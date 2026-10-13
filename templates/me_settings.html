@@ -3,6 +3,25 @@
 {% block content %}
 <h1>⚙️ 個人設定</h1>
 
+<div class="card stack narrow-left">
+  <h2>頭像</h2>
+  <div class="avatar-edit">
+    <img class="avatar avatar-xl" src="/avatar/{{ user.discord_id }}?v={{ avatar_version }}" alt="目前的頭像" width="96" height="96">
+    <div class="stack">
+      <form method="post" action="/me/avatar" enctype="multipart/form-data" class="stack">
+        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" required>
+        <button>上傳新頭像</button>
+      </form>
+      {% if has_custom_avatar %}
+      <form method="post" action="/me/avatar/reset">
+        <button class="secondary-btn small-btn">改回 Discord 頭像</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <span class="hint">PNG、JPG、WebP 或 GIF，小於 3 MB。會自動裁成正方形。沒上傳的話就用你的 Discord 頭像。</span>
+</div>
+
 <form method="post" class="card stack narrow-left">
   <h2>顯示名稱</h2>
   <p class="hint">大家在網站上看到的你的名字，例如借牌紀錄、下拉選單。不會改到你的 Discord 名稱。</p>

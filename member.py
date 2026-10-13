@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 
 import admin_db
+import avatars
 import database as db
 import guild_members
 import member_db
@@ -378,8 +379,11 @@ async def transfer(
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request, me: str = Depends(require_member)):
     user = await db.get_user(me)
+    profile = await avatars._get_profile(me)
     return await render(
         request, "me_settings.html", me, user=user, max_len=admin_db.MAX_NAME_LENGTH,
+        has_custom_avatar=bool(profile and profile["custom_image"]),
+        avatar_version=int(profile["updated_at"].timestamp()) if profile else 0,
     )
 
 

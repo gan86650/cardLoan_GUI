@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import who %}
 {% block title %}提醒設定 · 借牌管理{% endblock %}
 {% block content %}
 <h1>🔔 提醒設定</h1>
@@ -12,7 +13,7 @@
   <tbody>
     {% for u in users %}
     <tr>
-      <td><a href="/users/{{ u.discord_id }}">{{ u.username }}</a></td>
+      <td>{{ who(u.discord_id, u.username, "/users/" ~ u.discord_id) }}</td>
       <td class="num">{{ u.borrowed_qty or "" }}</td>
       {% set f = "reminder-" ~ u.discord_id %}
       <td><label class="check"><input type="checkbox" name="enabled" form="{{ f }}" {{ 'checked' if u.reminder_enabled }}> 開啟</label></td>

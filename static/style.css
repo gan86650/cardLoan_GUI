@@ -385,3 +385,20 @@ td.note { min-width: 6em; max-width: 220px; }
 td { white-space: normal; min-width: 4em; }
 td.num, td.actions, td[title], th { white-space: nowrap; }
 td.actions { min-width: 0; }
+
+/* ── 頭像 ──────────────────────────────────────────────────────────────────── */
+.avatar {
+  width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  border: 1px solid var(--gold-soft); background: var(--surface-2); vertical-align: middle;
+}
+.who { display: inline-flex; align-items: center; gap: 8px; }
+a.who { color: inherit; }
+a.who:hover { color: var(--gold); }
+.whoami { display: flex; align-items: center; gap: 10px; font-style: normal; color: var(--text); }
+.whoami .avatar { width: 28px; height: 28px; border-color: var(--gold); }
+.avatar-lg { width: 48px; height: 48px; border: 2px solid var(--gold); }
+.avatar-xl { width: 96px; height: 96px; border: 2px solid var(--gold); box-shadow: 0 0 18px var(--glow); }
+h1 .avatar-lg { margin-right: 6px; vertical-align: -12px; }
+.avatar-edit { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.picker-item .avatar { align-self: center; }
+input[type="file"] { font-size: .9rem; }

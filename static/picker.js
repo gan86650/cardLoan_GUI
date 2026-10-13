@@ -62,7 +62,11 @@
       }
       results.forEach((p, i) => {
         const li = el("li", "picker-item");
-        li.append(el("b", "", p.name));
+        const img = el("img", "avatar");
+        img.src = "/avatar/" + p.id;
+        img.alt = "";
+        img.loading = "lazy";
+        li.append(img, el("b", "", p.name));
         if (p.handle) li.append(el("span", "muted", "@" + p.handle));
         if (p.nick && p.nick !== p.name) li.append(el("span", "muted", p.nick));
         if (p.new) li.append(el("span", "picker-new", "還沒用過平台"));

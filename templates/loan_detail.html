@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import who %}
 {% block title %}#{{ loan.id }} · 借牌管理{% endblock %}
 {% block content %}
 <h1>#{{ loan.id }} {{ loan.card_name }}{% if loan.edition %} <span class="muted">[{{ loan.edition }}]</span>{% endif %}</h1>
@@ -8,8 +9,8 @@
     <dt>狀態</dt>
     <dd>{% if loan.returned_at %}<span class="badge ok">已歸還</span>{% else %}<span class="badge">借出中</span>{% endif %}</dd>
     <dt>數量</dt><dd>{{ loan.quantity }}</dd>
-    <dt>牌主</dt><dd><a href="/users/{{ loan.lender_id }}">{{ loan.lender_name }}</a></dd>
-    <dt>借用人</dt><dd><a href="/users/{{ loan.borrower_id }}">{{ loan.borrower_name }}</a></dd>
+    <dt>牌主</dt><dd>{{ who(loan.lender_id, loan.lender_name, "/users/" ~ loan.lender_id) }}</dd>
+    <dt>借用人</dt><dd>{{ who(loan.borrower_id, loan.borrower_name, "/users/" ~ loan.borrower_id) }}</dd>
     <dt>借出時間</dt><dd>{{ loan.borrowed_at | fmt_time }}（{{ loan.borrowed_at | days_since }} 天前）</dd>
     {% if loan.returned_at %}<dt>歸還時間</dt><dd>{{ loan.returned_at | fmt_time }}</dd>{% endif %}
     {% if loan.note %}<dt>備註</dt><dd>{{ loan.note }}</dd>{% endif %}

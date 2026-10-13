@@ -12,6 +12,7 @@ load_dotenv()
 
 import admin_db  # noqa: E402
 import auth  # noqa: E402
+import avatars  # noqa: E402
 import database as db  # noqa: E402
 import guild_members  # noqa: E402
 import member  # noqa: E402
@@ -53,9 +54,10 @@ MENU = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 不跑 db.init_db()：bot 的資料表與 migration 交給 bot。
-    # GUI 只額外建自己用的 return_requests 表（還牌申請），不動 bot 的表。
+    # GUI 只額外建自己用的 return_requests（還牌申請）和 user_profiles（頭像）表，不動 bot 的表。
     await db.get_pool()
     await member_db.ensure_schema()
+    await avatars.ensure_schema()
     yield
     if db._pool is not None:
         await db._pool.close()
@@ -81,6 +83,7 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth.router)
+app.include_router(avatars.router)
 app.include_router(member.router)
 templates.env.globals["MENU"] = MENU
 
