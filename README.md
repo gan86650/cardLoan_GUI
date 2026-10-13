@@ -55,13 +55,34 @@
 | `TIMEZONE` | 選填，顯示時間的時區，預設 `Asia/Taipei` |
 | `DEV_LOGIN` | 本機測試用，設 `1` 時登入頁可以直接選使用者登入；Railway 上設了會拒絕啟動 |
 
-## 本機執行
+## 本機開發（新電腦也照這個做）
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env   # 填好上面的變數
-uvicorn main:app --reload
+需要 Python 3.13 和 Docker Desktop。
+
+```powershell
+git clone https://github.com/gan86650/cardLoan_GUI.git
+cd cardLoan_GUI
+git checkout LocalTest
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+copy .env.example .env          # 照下面說明填
+docker compose up -d            # 本機 PostgreSQL 18，資料存在 Docker volume
+.\.venv\Scripts\python scripts\pull_prod_data.py   # 複製正式資料到本機（要真實資料才需要）
+.\.venv\Scripts\python -m uvicorn main:app --reload
 ```
+
+`.env` 本機用的設定：
+
+```
+DATABASE_URL=postgresql://postgres@localhost:55432/cardloan_local
+ADMIN_PASSWORD=admin
+SESSION_SECRET=隨便一串字
+DEV_LOGIN=1
+SOURCE_DATABASE_URL=Railway Postgres → Variables → DATABASE_PUBLIC_URL
+```
+
+`scripts/pull_prod_data.py` 只會**讀取**正式資料庫，寫入前會檢查 `DATABASE_URL` 一定是 localhost，
+再清空本機資料、換成正式資料的副本。之後想更新成最新資料，再跑一次就好。
 
 ## 部署到 Railway
 
@@ -70,7 +91,7 @@ uvicorn main:app --reload
    `${{Postgres.DATABASE_URL}}` 引用 bot 的資料庫（名稱依你的 Postgres 服務而定）。
 3. **Settings → Networking → Generate Domain** 產生網址。
 
-啟動指令寫在 `Procfile`。
+啟動指令寫在 `railway.json`。`main` branch 就是正式環境，推上去 Railway 會自動重新部署。
 
 ## 注意
 
