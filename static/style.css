@@ -413,3 +413,104 @@ details summary { cursor: pointer; }
   * { transition: none !important; }
   body::after { animation: none; }
 }
+
+/* ── 霓虹漸層：桃紅 → 紫 → 青（參考圖的招牌與街景色） ───────────────────── */
+:root {
+  --neon: linear-gradient(90deg, #ff2a9d, #b13cff 50%, #22e4ff);
+  --neon-v: linear-gradient(180deg, #22e4ff, #b13cff 50%, #ff2a9d);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sky: linear-gradient(180deg, #06323f 0%, #0a1830 30%, #1a0a33 62%, #3a0634 85%, #5a0a45 100%);
+  }
+}
+:root[data-theme="dark"] {
+  --sky: linear-gradient(180deg, #06323f 0%, #0a1830 30%, #1a0a33 62%, #3a0634 85%, #5a0a45 100%);
+}
+:root {
+  --sky: linear-gradient(180deg, #d9f6fb 0%, #eee6fb 45%, #fbe0f0 80%, #ffd0e8 100%);
+}
+
+/* 整片天空漸層 + 上方青光、下方桃紅霧 */
+html {
+  background:
+    radial-gradient(900px 460px at 55% -8%, var(--sky-top), transparent 70%),
+    radial-gradient(1100px 420px at 30% 112%, var(--haze), transparent 70%),
+    radial-gradient(800px 380px at 92% 108%, var(--glow-cyan), transparent 70%),
+    var(--sky);
+  background-attachment: fixed;
+}
+
+/* 漸層文字標題 */
+h1 {
+  background: var(--neon); -webkit-background-clip: text; background-clip: text;
+  color: transparent; text-shadow: none;
+  filter: drop-shadow(0 0 8px rgba(255, 42, 157, .55)) drop-shadow(0 0 18px rgba(34, 228, 255, .25));
+  width: fit-content;
+}
+h1 .small { -webkit-text-fill-color: var(--muted); }
+h1::after { background: var(--neon); width: 100%; min-width: 72px; }
+.brand {
+  background: var(--neon); -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none; filter: drop-shadow(0 0 8px rgba(255, 42, 157, .7));
+}
+.stat b {
+  background: var(--neon); -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none; filter: drop-shadow(0 0 10px rgba(177, 60, 255, .5)); width: fit-content;
+}
+.stat.warn b { background: none; color: var(--warn); filter: drop-shadow(0 0 10px var(--warn)); }
+.stat { border-bottom: 0; }
+.stat::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--neon); }
+.stat.warn::after { background: var(--warn); }
+
+/* 漸層邊框的卡片與表格 */
+.card, .table-wrap, .callout {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--surface-solid-a), var(--surface-solid-a)) padding-box,
+    var(--neon) border-box;
+}
+:root { --surface-solid-a: rgba(255, 255, 255, .85); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --surface-solid-a: rgba(10, 12, 30, .8); } }
+:root[data-theme="dark"] { --surface-solid-a: rgba(10, 12, 30, .8); }
+.card::before { background: var(--neon); right: 16px; box-shadow: 0 0 14px rgba(255, 42, 157, .6); }
+.table-wrap { border-left: 1px solid transparent; }
+.callout { background: linear-gradient(var(--surface-solid-a), var(--surface-solid-a)) padding-box, linear-gradient(90deg, var(--warn), #ff2a9d) border-box; }
+
+/* 表頭：桃紅→紫→青的霓虹燈條 */
+th {
+  background: linear-gradient(90deg, rgba(255, 42, 157, .55), rgba(177, 60, 255, .4) 50%, rgba(34, 228, 255, .35));
+  color: #fff; border-bottom: 0; text-shadow: 0 0 6px rgba(0, 0, 0, .4);
+}
+tbody tr:hover { box-shadow: inset 3px 0 0 #ff2a9d; background: linear-gradient(90deg, rgba(255, 42, 157, .1), rgba(34, 228, 255, .04)); }
+
+/* 按鈕 */
+button, .button { background: var(--neon); color: #fff; text-shadow: 0 0 6px rgba(0, 0, 0, .35); }
+button:hover, .button:hover { filter: brightness(1.15) drop-shadow(0 0 10px rgba(255, 42, 157, .6)); }
+.button.secondary, .small-btn.secondary, .secondary-btn { background: transparent; color: var(--link); text-shadow: none; }
+button.link, .theme-toggle button { background: transparent; text-shadow: none; }
+.theme-toggle button[aria-pressed="true"] { background: var(--neon); }
+.button.discord { background: #5865f2; }
+
+/* 側邊欄：直向漸層夜空 + 右緣霓虹燈管 */
+.sidebar {
+  background: linear-gradient(180deg, rgba(6, 40, 52, .92), rgba(16, 10, 40, .92) 50%, rgba(60, 6, 52, .92));
+  border-right: 0; box-shadow: none; position: sticky;
+}
+.sidebar::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 2px; height: 100%;
+  background: var(--neon-v); box-shadow: 0 0 14px rgba(255, 42, 157, .7);
+}
+.sidebar nav a.active {
+  background: linear-gradient(90deg, rgba(255, 42, 157, .55), rgba(177, 60, 255, .3) 60%, transparent);
+}
+.nav-group { background: var(--neon); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav-group::before { -webkit-text-fill-color: #fcee0a; }
+
+/* 功能磚滑過時亮起霓虹漸層外框 */
+.tile:hover { box-shadow: none; background: linear-gradient(var(--surface-solid-a), var(--surface-solid-a)) padding-box, var(--neon) border-box; border-color: transparent; }
+.chip:hover { background: var(--neon); color: #fff; box-shadow: none; }
+.picker-list { border: 1px solid transparent; background: linear-gradient(var(--surface-solid), var(--surface-solid)) padding-box, var(--neon) border-box; }
+/* 漸層文字會把 emoji 也染色，開頭的 emoji 保留原色 */
+h1::first-letter, .brand::first-letter { -webkit-text-fill-color: initial; color: #fff; }
+.brand { display: block; width: fit-content; }
