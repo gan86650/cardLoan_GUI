@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_macros.html" import request_table %}
+{% block title %}待我確認{% endblock %}
+{% block content %}
+<h1>📨 待我確認</h1>
+<p class="muted">別人要還你牌的申請。確認牌真的拿回來了再按同意，同意後就會記為歸還。</p>
+
+{% if approvals %}
+  {{ request_table(approvals, "approve") }}
+{% else %}
+  <p class="empty">目前沒有等你確認的還牌申請</p>
+{% endif %}
+{% endblock %}

@@ -8,6 +8,7 @@
   <a class="stat" href="/overview"><b>{{ active_count }}</b><span>筆未還紀錄</span></a>
   <a class="stat" href="/overview"><b>{{ active_qty }}</b><span>張牌還在外面</span></a>
   <div class="stat {{ 'warn' if overdue }}"><b>{{ overdue | length }}</b><span>筆借超過 14 天</span></div>
+  <div class="stat"><b>{{ pending_count }}</b><span>筆還牌等牌主確認</span></div>
 </div>
 
 {% for group, items in MENU %}

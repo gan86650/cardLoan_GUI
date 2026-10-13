@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import member_table %}
+{% block title %}借牌總覽{% endblock %}
+{% block content %}
+<h1>📋 借牌總覽 <span class="muted small">{{ loans | length }} 筆、共 {{ total_qty }} 張未還</span></h1>
+
+<form method="get" class="filters card">
+  <label>卡名
+    <input type="search" name="card" value="{{ card }}" placeholder="關鍵字">
+  </label>
+  <div class="filter-actions">
+    <button>篩選</button>
+    <a href="/me/overview" class="button secondary">清除</a>
+  </div>
+</form>
+
+{{ member_table(loans, me, pending_ids) }}
+{% endblock %}

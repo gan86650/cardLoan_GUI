@@ -19,7 +19,28 @@
 | 提醒設定（所有人一頁改完） | `/提醒設定` |
 | 歸還紀錄、使用者 | （bot 沒有） |
 
-目前只有一組管理員密碼，登入後可以代任何人操作。之後會加 Discord 登入給一般成員使用。
+管理員用密碼登入（登入頁的「管理員登入」），可以代任何人操作。
+
+## 一般成員（Discord 登入）
+
+借牌伺服器的成員用 Discord 登入，在 `/me` 底下使用。權限跟 bot 一致：
+
+| 功能 | 誰可以用 | 寫入時機 |
+| --- | --- | --- |
+| 借牌、借出、紀錄他人、批次紀錄 | 所有成員 | 送出就寫入，不用牌主同意 |
+| 還牌 | 借用人 | 送出申請，**牌主在「待我確認」按同意後**才寫入歸還 |
+| 已取回 | 牌主 | 直接寫入 |
+| 轉借 | 目前的借用人 | 直接寫入（有還牌申請在等時不能轉借） |
+| 我的借牌、借牌總覽、查借牌 | 所有成員 | 只讀 |
+
+成員不能新增使用者，也看不到管理員頁面。還牌申請存在 GUI 自己建的 `return_requests` 表，
+啟動時自動建立，不會動到 bot 的 `users`、`loans` 表。
+
+### 設定 Discord 登入
+
+1. [Discord Developer Portal](https://discord.com/developers/applications) 打開 bot 的應用程式 → **OAuth2**
+2. **Redirects** 加上 `https://你的網域/auth/discord/callback`（本機測試再加 `http://localhost:8000/auth/discord/callback`）
+3. 把 **Client ID**、**Client Secret** 填到 `DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET`
 
 ## 環境變數
 
@@ -28,8 +49,11 @@
 | `DATABASE_URL` | 跟 bot 同一個 PostgreSQL |
 | `ADMIN_PASSWORD` | 管理員登入密碼 |
 | `SESSION_SECRET` | 簽登入 cookie 用的隨機長字串，例如 `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
+| `DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET` | Discord 登入用，見上方 |
+| `GUILD_ID` | 選填，只讓這些伺服器（逗號分隔）的成員登入；不填就用資料庫裡出現過的伺服器 |
 | `DEFAULT_GUILD_ID` | 選填，新增紀錄時預設的伺服器 ID（不填就用資料最多的那個） |
 | `TIMEZONE` | 選填，顯示時間的時區，預設 `Asia/Taipei` |
+| `DEV_LOGIN` | 本機測試用，設 `1` 時登入頁可以直接選使用者登入；Railway 上設了會拒絕啟動 |
 
 ## 本機執行
 
@@ -42,7 +66,7 @@ uvicorn main:app --reload
 ## 部署到 Railway
 
 1. 在 bot 所在的 Railway 專案裡 **New → GitHub Repo**，選這個 repo。
-2. 在新服務的 **Variables** 加上 `ADMIN_PASSWORD`、`SESSION_SECRET`，`DATABASE_URL` 用
+2. 在新服務的 **Variables** 加上 `ADMIN_PASSWORD`、`SESSION_SECRET`、`DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET`，`DATABASE_URL` 用
    `${{Postgres.DATABASE_URL}}` 引用 bot 的資料庫（名稱依你的 Postgres 服務而定）。
 3. **Settings → Networking → Generate Domain** 產生網址。
 
@@ -51,5 +75,5 @@ uvicorn main:app --reload
 ## 注意
 
 - `database.py` 是從 bot repo 複製過來的，bot 那邊改了 SQL 記得同步。
-- GUI 不會建表或跑 migration，這些交給 bot 啟動時處理。
+- GUI 不會建 bot 的表或跑 bot 的 migration，這些交給 bot 啟動時處理；只會建自己的 `return_requests`。
 - 下拉選單只列出 `users` 表裡的人（用過 bot 就會自動加入），沒用過的人可以在「使用者」頁手動新增。

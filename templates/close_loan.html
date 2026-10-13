@@ -11,7 +11,7 @@
 </p>
 
 {% if loans %}
-<form method="post" action="/{{ mode }}" class="card stack"
+<form method="post" action="{{ action or '/' ~ mode }}" class="card stack"
       onsubmit="return confirm('確定要標記{{ verb }}嗎？')">
   <label>借牌紀錄
     <select name="loan_id" required>

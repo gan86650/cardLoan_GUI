@@ -23,7 +23,7 @@
 
 {% macro loan_option(l, selected) %}
   <option value="{{ l.id }}" {{ 'selected' if l.id == selected }}>
-    #{{ l.id }} {{ l.card_name }}{% if l.edition %} [{{ l.edition }}]{% endif %} x{{ l.quantity }}（{{ l.lender_name }} → {{ l.borrower_name }}）
+    #{{ l.id }} {{ l.card_name }}{% if l.edition %} [{{ l.edition }}]{% endif %} x{{ l.quantity }}（{{ l.lender_name or '你' }} → {{ l.borrower_name or '你' }}）
   </option>
 {% endmacro %}
 
@@ -74,4 +74,86 @@
   </table>
   </div>
   {% endif %}
+{% endmacro %}
+
+{# 一般成員用：沒有管理連結，操作按鈕依照自己是借用人還是牌主決定 #}
+{% macro member_table(loans, me, pending_ids, show_lender=True, show_borrower=True) %}
+  {% if not loans %}
+    <p class="empty">沒有紀錄</p>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>操作</th><th>ID</th><th>卡名</th><th>版本</th><th class="num">數量</th>
+        {% if show_lender %}<th>牌主</th>{% endif %}
+        {% if show_borrower %}<th>借用人</th>{% endif %}
+        <th>借出日期</th><th class="num">天數</th><th>備註</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in loans %}
+      <tr>
+        <td class="actions">
+          {% if l.id in pending_ids %}
+            <span class="chip waiting">等牌主確認還牌</span>
+          {% elif l.borrower_id == me %}
+            <a href="/me/return?id={{ l.id }}" class="chip">還牌</a>
+            <a href="/me/transfer?id={{ l.id }}" class="chip">轉借</a>
+          {% endif %}
+          {% if l.lender_id == me %}
+            <a href="/me/reclaim?id={{ l.id }}" class="chip">已取回</a>
+          {% endif %}
+        </td>
+        <td class="muted">#{{ l.id }}</td>
+        <td>{{ l.card_name }}</td>
+        <td>{{ l.edition or "" }}</td>
+        <td class="num">{{ l.quantity }}</td>
+        {% if show_lender %}<td>{{ l.lender_name }}</td>{% endif %}
+        {% if show_borrower %}<td>{{ l.borrower_name }}</td>{% endif %}
+        <td class="muted" title="{{ l.borrowed_at | fmt_time }}">{{ (l.borrowed_at | fmt_time)[:10] }}</td>
+        {% set d = l.borrowed_at | days_since %}
+        <td class="num {{ 'warn' if d >= 14 }}">{{ d }}</td>
+        <td class="muted note">{{ l.note or "" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro request_table(requests, mode) %}
+  {# mode: "approve"（牌主確認）或 "cancel"（借用人取消） #}
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>卡名</th><th class="num">申請歸還</th><th class="num">目前借出</th>
+        <th>{{ "借用人" if mode == "approve" else "牌主" }}</th><th>申請時間</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td class="muted">#{{ r.id }}</td>
+        <td>{{ r.card_name }}{% if r.edition %} <span class="muted">[{{ r.edition }}]</span>{% endif %}</td>
+        <td class="num"><b>{{ [r.request_qty, r.quantity] | min }}</b></td>
+        <td class="num">{{ r.quantity }}</td>
+        <td>{{ r.borrower_name if mode == "approve" else r.lender_name }}</td>
+        <td class="muted">{{ r.requested_at | fmt_time }}</td>
+        <td class="actions">
+          {% if mode == "approve" %}
+            <form method="post" action="/me/approvals/{{ r.request_id }}/approve" class="inline"><button class="small-btn">同意歸還</button></form>
+            <form method="post" action="/me/approvals/{{ r.request_id }}/reject" class="inline"
+                  onsubmit="return confirm('確定要拒絕這筆還牌申請嗎？')"><button class="small-btn secondary">拒絕</button></form>
+          {% else %}
+            <form method="post" action="/me/return/{{ r.request_id }}/cancel" class="inline"><button class="small-btn secondary">取消申請</button></form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
 {% endmacro %}

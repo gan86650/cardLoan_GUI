@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import member_table, user_options %}
+{% block title %}查借牌{% endblock %}
+{% block content %}
+<h1>🔍 查借牌</h1>
+<p class="muted">你跟某人之間雙向的未還紀錄。</p>
+
+<form method="get" class="filters card">
+  <label>對象
+    <select name="other" required onchange="this.form.submit()">{{ user_options(users, other, "請選擇") }}</select>
+  </label>
+  <div class="filter-actions"><button>查詢</button></div>
+</form>
+
+{% if loans is not none %}
+  {{ member_table(loans, me, pending_ids) }}
+{% endif %}
+{% endblock %}

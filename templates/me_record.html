@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import user_options, guild_field %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p class="muted">{{ desc }}</p>
+
+{% set others = users | rejectattr("discord_id", "equalto", me) | list %}
+<form method="post" class="card stack">
+  {{ guild_field(guilds, default_guild) }}
+  {% if mode == "borrow" %}
+    <label>牌主（你跟誰借）
+      <select name="lender_id" required>{{ user_options(others, "", "請選擇") }}</select>
+    </label>
+  {% elif mode == "lend" %}
+    <label>借用人（借給誰）
+      <select name="borrower_id" required>{{ user_options(others, "", "請選擇") }}</select>
+    </label>
+  {% else %}
+    <div class="row">
+      <label>牌主（借出的人）
+        <select name="lender_id" required>{{ user_options(users, "", "請選擇") }}</select>
+      </label>
+      <label>借用人（借走的人）
+        <select name="borrower_id" required>{{ user_options(users, "", "請選擇") }}</select>
+      </label>
+    </div>
+  {% endif %}
+  <div class="row">
+    <label>卡名
+      <input name="card_name" list="card-names" required autocomplete="off">
+    </label>
+    <label>數量
+      <input type="number" name="quantity" min="1" value="1" required>
+    </label>
+  </div>
+  <div class="row">
+    <label>版本（可選）
+      <input name="edition" placeholder="例如 EN-001、Alpha">
+    </label>
+    <label>備註（可選）
+      <input name="note">
+    </label>
+  </div>
+  <datalist id="card-names">
+    {% for c in card_names %}<option value="{{ c }}">{% endfor %}
+  </datalist>
+  <p class="hint">名單裡只有用過 bot 或登入過這個網站的人。</p>
+  <button>記錄</button>
+</form>
+{% endblock %}

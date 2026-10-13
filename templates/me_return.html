@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_option, request_table %}
+{% block title %}還牌{% endblock %}
+{% block content %}
+<h1>✅ 還牌</h1>
+<p class="muted">送出後會等牌主在「待我確認」按同意，同意了才算歸還。數量留空就是全部歸還。</p>
+
+{% if loans %}
+<form method="post" action="/me/return" class="card stack">
+  <label>要還的牌
+    <select name="loan_id" required>
+      <option value="">請選擇</option>
+      {% for l in loans %}{{ loan_option(l, selected) }}{% endfor %}
+    </select>
+  </label>
+  <label>歸還數量（可選）
+    <input type="number" name="quantity" min="1" placeholder="留空 = 全部">
+  </label>
+  <button>送出還牌申請</button>
+</form>
+{% else %}
+  <p class="empty">你目前沒有可以申請歸還的牌</p>
+{% endif %}
+
+{% if my_requests %}
+  <h2>⏳ 等牌主確認中</h2>
+  {{ request_table(my_requests, "cancel") }}
+{% endif %}
+{% endblock %}

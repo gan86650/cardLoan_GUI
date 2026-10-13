@@ -6,7 +6,7 @@
 <p class="muted">把借到的牌轉給另一個人：牌主不變，借貸關係從原借用人轉到新借用人。</p>
 
 {% if loans %}
-<form method="post" action="/transfer" class="card stack"
+<form method="post" action="{{ action or '/transfer' }}" class="card stack"
       onsubmit="return confirm('確定要轉借嗎？')">
   <label>借牌紀錄
     <select name="loan_id" required>

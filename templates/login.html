@@ -1,13 +1,30 @@
 {% extends "base.html" %}
-{% block title %}登入 · 借牌管理{% endblock %}
+{% block title %}登入 · 借牌{% endblock %}
 {% block login %}
-<div class="card narrow">
-  <h1>🃏 借牌管理</h1>
-  <form method="post" action="/login" class="stack">
-    <label>管理員密碼
-      <input type="password" name="password" required autofocus>
-    </label>
-    <button>登入</button>
-  </form>
+<div class="card narrow stack">
+  <h1>🃏 借牌</h1>
+
+  {% if discord_enabled %}
+    <a href="/auth/discord" class="button discord">用 Discord 登入</a>
+  {% endif %}
+
+  {% if dev_users %}
+    <form method="post" action="/dev-login" class="stack dev">
+      <span class="hint">本機測試：直接以某位使用者登入</span>
+      <select name="discord_id" required>
+        <option value="">選擇使用者</option>
+        {% for u in dev_users %}<option value="{{ u.discord_id }}">{{ u.username }}</option>{% endfor %}
+      </select>
+      <button class="secondary-btn">以這個人登入</button>
+    </form>
+  {% endif %}
+
+  <details {{ 'open' if not discord_enabled and not dev_users }}>
+    <summary class="hint">管理員登入</summary>
+    <form method="post" action="/login" class="stack admin-login">
+      <input type="password" name="password" required placeholder="管理員密碼">
+      <button class="secondary-btn">登入</button>
+    </form>
+  </details>
 </div>
 {% endblock %}

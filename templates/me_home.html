@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import member_table, request_table %}
+{% block title %}我的借牌{% endblock %}
+{% block content %}
+<h1>🏠 我的借牌</h1>
+
+{% if approvals %}
+  <div class="callout">
+    <h2>📨 有 {{ approvals | length }} 筆還牌等你確認</h2>
+    {{ request_table(approvals, "approve") }}
+  </div>
+{% endif %}
+
+<h2>📥 借進來的牌</h2>
+{{ member_table(borrowed, me, pending_ids, show_borrower=False) }}
+
+<h2>📤 借出去的牌</h2>
+{{ member_table(lent, me, pending_ids, show_lender=False) }}
+
+{% if my_requests %}
+  <h2>⏳ 我送出的還牌申請</h2>
+  {{ request_table(my_requests, "cancel") }}
+{% endif %}
+{% endblock %}

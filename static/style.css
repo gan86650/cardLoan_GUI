@@ -170,3 +170,18 @@ tbody tr:hover { background: var(--row-hover); }
 .details dd { margin: 0; }
 .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .85rem; background: var(--row-hover); }
 .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
+
+.whoami { padding: 0 8px; color: var(--muted); font-size: .9rem; }
+.count {
+  margin-left: auto; min-width: 20px; padding: 0 6px; border-radius: 999px;
+  background: var(--warn); color: #fff; font-size: .75rem; text-align: center; line-height: 20px;
+}
+.callout { border: 1px solid var(--warn); border-radius: 10px; padding: 4px 14px 14px; margin-bottom: 16px; }
+.chip.waiting { color: var(--warn); border-color: var(--warn); }
+form.inline { display: inline; }
+.small-btn.secondary, .secondary-btn { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.secondary-btn { align-self: stretch; }
+.button.discord { background: #5865f2; color: #fff; text-align: center; align-self: stretch; padding: 10px 16px; }
+details summary { cursor: pointer; }
+.admin-login { margin-top: 10px; }
+.dev { border: 1px dashed var(--border); border-radius: 8px; padding: 10px; }

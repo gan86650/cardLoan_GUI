@@ -1,44 +1,27 @@
 import hmac
 import os
-import re
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv()
 
 import admin_db  # noqa: E402
+import auth  # noqa: E402
 import database as db  # noqa: E402
+import member  # noqa: E402
+import member_db  # noqa: E402
+from web import (  # noqa: E402
+    MAX_BATCH_ITEMS, NotLoggedIn, back, days_since, flash, parse_card_batch,
+    redirect, render, require_admin, templates,
+)
 
 ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 SESSION_SECRET = os.environ["SESSION_SECRET"]
-TZ = ZoneInfo(os.getenv("TIMEZONE", "Asia/Taipei"))
-
-# 跟 bot 的 cogs/loans.py 保持一致
-MAX_BATCH_ITEMS = 20
-_BATCH_LINE_RE = re.compile(r"^(.+?)(?:\s+[xX](\d+))?$")
-
-
-def parse_card_batch(raw: str) -> list[tuple[str, int]]:
-    items: list[tuple[str, int]] = []
-    for line in raw.splitlines():
-        for part in line.split(","):
-            part = part.strip()
-            if not part:
-                continue
-            match = _BATCH_LINE_RE.match(part)
-            name = match.group(1).strip()
-            quantity = int(match.group(2)) if match.group(2) else 1
-            items.append((name, quantity))
-    return items
-
 
 # 側邊選單：照 bot 的 /指令說明 分組，首頁也用這份清單
 MENU = [
@@ -67,8 +50,10 @@ MENU = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 不跑 db.init_db()：建表與 migration 交給 bot，GUI 只讀寫既有資料
+    # 不跑 db.init_db()：bot 的資料表與 migration 交給 bot。
+    # GUI 只額外建自己用的 return_requests 表（還牌申請），不動 bot 的表。
     await db.get_pool()
+    await member_db.ensure_schema()
     yield
     if db._pool is not None:
         await db._pool.close()
@@ -83,70 +68,34 @@ app.add_middleware(
     max_age=60 * 60 * 24 * 7,
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
-
-def fmt_time(value: datetime | None) -> str:
-    if value is None:
-        return ""
-    return value.astimezone(TZ).strftime("%Y-%m-%d %H:%M")
-
-
-def days_since(value: datetime) -> int:
-    return (datetime.now(timezone.utc) - value).days
-
-
-templates.env.filters["fmt_time"] = fmt_time
-templates.env.filters["days_since"] = days_since
+app.include_router(auth.router)
+app.include_router(member.router)
 templates.env.globals["MENU"] = MENU
-
-
-# ── 登入 ──────────────────────────────────────────────────────────────────────
-class NotLoggedIn(Exception):
-    pass
 
 
 @app.exception_handler(NotLoggedIn)
 async def _redirect_to_login(request: Request, exc: NotLoggedIn):
-    return RedirectResponse("/login", status_code=303)
-
-
-def require_admin(request: Request):
-    if not request.session.get("admin"):
-        raise NotLoggedIn()
+    return redirect("/login")
 
 
 admin = [Depends(require_admin)]
 
 
-def flash(request: Request, message: str, kind: str = "ok"):
-    request.session.setdefault("flash", []).append({"kind": kind, "message": message})
-
-
-def render(request: Request, name: str, **context):
-    messages = request.session.pop("flash", [])
-    return templates.TemplateResponse(request, name, {"messages": messages, **context})
-
-
-def redirect(url: str):
-    return RedirectResponse(url, status_code=303)
-
-
-def back(request: Request, fallback: str = "/") -> str:
-    """表單送出後回到原本的頁面（只接受站內路徑）。"""
-    ref = request.headers.get("referer", "")
-    base = str(request.base_url)
-    return "/" + ref[len(base):] if ref.startswith(base) else fallback
-
-
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return render(request, "login.html")
+    if request.session.get("admin") or request.session.get("user_id"):
+        return redirect("/")
+    return render(
+        request, "login.html",
+        discord_enabled=auth.DISCORD_ENABLED,
+        dev_users=await admin_db.list_users() if auth.DEV_LOGIN else None,
+    )
 
 
 @app.post("/login")
 async def login(request: Request, password: str = Form(...)):
     if hmac.compare_digest(password.encode(), ADMIN_PASSWORD.encode()):
+        request.session.clear()
         request.session["admin"] = True
         return redirect("/")
     flash(request, "密碼錯誤", "error")
@@ -160,12 +109,15 @@ async def logout(request: Request):
 
 
 # ── 首頁（/指令說明）────────────────────────────────────────────────────────
-@app.get("/", response_class=HTMLResponse, dependencies=admin)
+@app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
+    if not request.session.get("admin"):
+        return redirect("/me" if request.session.get("user_id") else "/login")
     loans = await admin_db.search_active_loans(None, None, None)
     overdue = [l for l in loans if days_since(l["borrowed_at"]) >= 14]
     return render(
         request, "home.html",
+        pending_count=len(await member_db.pending_loan_ids()),
         active_count=len(loans),
         active_qty=sum(l["quantity"] for l in loans),
         overdue=overdue,

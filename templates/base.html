@@ -7,16 +7,25 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  {% if request.session.get("admin") %}
+  {% if request.session.get("admin") or request.session.get("user_id") %}
+  {% set nav = menu if menu is defined else MENU %}
   <div class="layout">
     <aside class="sidebar">
-      <a class="brand" href="/">🃏 借牌管理</a>
+      {% if me is defined %}
+        <a class="brand" href="/me">🃏 借牌</a>
+        <div class="whoami">👋 {{ me_name }}</div>
+      {% else %}
+        <a class="brand" href="/">🃏 借牌管理</a>
+      {% endif %}
       <nav>
+        {% if me is not defined %}
         <a href="/" class="{{ 'active' if request.url.path == '/' }}"><span>❓</span>所有功能</a>
-        {% for group, items in MENU %}
+        {% endif %}
+        {% for group, items in nav %}
           <div class="nav-group">{{ group }}</div>
           {% for href, icon, label, desc in items %}
-            <a href="{{ href }}" class="{{ 'active' if request.url.path == href }}"><span>{{ icon }}</span>{{ label }}</a>
+            <a href="{{ href }}" class="{{ 'active' if request.url.path == href }}"><span>{{ icon }}</span>{{ label }}
+              {% if href == "/me/approvals" and approval_count %}<b class="count">{{ approval_count }}</b>{% endif %}</a>
           {% endfor %}
         {% endfor %}
       </nav>
