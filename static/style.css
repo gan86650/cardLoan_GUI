@@ -496,35 +496,68 @@ input:focus, select:focus, textarea:focus { border-color: var(--main); box-shado
 .nav-group { color: #00f0ff; }
 .nav-group::before { color: #ff2a9d; }
 
-/* ── 流動的霓虹光：桃紅、紫、青三團光在背景緩慢飄移、呼吸 ─────────────────── */
-:root { --flow-opacity: .55; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --flow-opacity: .8; } }
-:root[data-theme="dark"] { --flow-opacity: .8; }
-body::after {
-  content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(38% 32% at 20% 75%, rgba(255, 42, 157, .55), transparent 70%),
-    radial-gradient(34% 30% at 80% 25%, rgba(0, 240, 255, .45), transparent 70%),
-    radial-gradient(30% 28% at 55% 55%, rgba(150, 60, 255, .4), transparent 70%),
-    radial-gradient(26% 24% at 85% 85%, rgba(255, 42, 157, .35), transparent 70%);
-  opacity: var(--flow-opacity);
-  filter: blur(30px);
-  will-change: transform, opacity;
-  animation: neon-flow 24s ease-in-out infinite alternate, neon-breathe 9s ease-in-out infinite alternate;
-}
-@keyframes neon-flow {
-  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33%  { transform: translate(6%, -5%) rotate(8deg) scale(1.08); }
-  66%  { transform: translate(-5%, 4%) rotate(-6deg) scale(.96); }
-  100% { transform: translate(4%, 6%) rotate(4deg) scale(1.05); }
-}
-/* 只動 transform 和 opacity，瀏覽器可以交給 GPU，不會拖慢頁面 */
-@keyframes neon-breathe {
-  from { opacity: calc(var(--flow-opacity) * .7); }
-  to   { opacity: var(--flow-opacity); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  body::after { animation: none; }
 }
+
+/* ── 手繪顏料風格 ────────────────────────────────────────────────────────────
+   背景是筆刷塗抹的霓虹街景色塊（static/paint-bg.svg，自己產生），
+   卡片疊畫布紋理，標題底下一筆刷線，按鈕和表頭的邊緣像被顏料刷開。 */
+:root { --paint-veil: rgba(255, 248, 252, .62); --warm: #e0560f; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paint-veil: rgba(4, 6, 18, .18); --warm: #ff7a1a; }
+}
+:root[data-theme="dark"] { --paint-veil: rgba(4, 6, 18, .18); --warm: #ff7a1a; }
+
+html {
+  background:
+    linear-gradient(var(--paint-veil), var(--paint-veil)),
+    url("/static/paint-bg.svg") center / cover no-repeat,
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* 畫布紋理 */
+.card, .table-wrap, .stat, .tile, .callout, .sidebar {
+  background-image: url("/static/grain.svg");
+  background-color: var(--panel);
+}
+.sidebar { background-color: rgba(4, 7, 16, .9); }
+
+/* 標題：底下一筆刷線（桃紅→橘，取參考圖的招牌暖色） */
+h1 { border-left: 0; padding-left: 0; }
+h1::after {
+  display: block; content: ""; width: 220px; max-width: 100%; height: 12px; margin-top: 6px;
+  background: linear-gradient(90deg, var(--main), var(--pop) 55%, var(--warm));
+  -webkit-mask: url("/static/brush-stroke.svg") center / 100% 100% no-repeat;
+  mask: url("/static/brush-stroke.svg") center / 100% 100% no-repeat;
+  box-shadow: none;
+}
+.narrow h1::after { margin: 8px auto 0; }
+
+/* 按鈕：顏料刷開的邊緣，取代切角 */
+button, .button {
+  clip-path: none;
+  -webkit-mask: url("/static/brush-rect.svg") center / 100% 100% no-repeat;
+  mask: url("/static/brush-rect.svg") center / 100% 100% no-repeat;
+  padding: 10px 22px;
+}
+button:hover, .button:hover { box-shadow: none; filter: brightness(1.15) saturate(1.2); }
+button.link, .theme-toggle button { -webkit-mask: none; mask: none; padding: 0; }
+.theme-toggle button { padding: 4px 10px; }
+.button.secondary, .small-btn.secondary, .secondary-btn { -webkit-mask: none; mask: none; clip-path: var(--clip-sm); }
+
+/* 表頭：主色帶紋理，像刷上去的一道顏料 */
+th { background-image: url("/static/grain.svg"); background-color: var(--main); }
+
+/* 噴漆感的點綴：卡片右下角換成一小團顏料噴點 */
+.card::after {
+  width: 26px; height: 26px; right: 6px; bottom: 6px; background: none;
+  background-image:
+    radial-gradient(circle at 30% 40%, var(--warm) 0 3px, transparent 4px),
+    radial-gradient(circle at 70% 25%, var(--pop) 0 2px, transparent 3px),
+    radial-gradient(circle at 55% 75%, var(--main) 0 2.5px, transparent 3.5px),
+    radial-gradient(circle at 85% 70%, var(--warm) 0 1.5px, transparent 2.5px);
+}
+.stat.warn b, .warn { color: var(--warn); }
+.nav-group::before { color: var(--warm); }
