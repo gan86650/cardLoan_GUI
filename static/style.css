@@ -25,7 +25,6 @@
   --warn: #c2005a;
   --row-hover: rgba(209, 0, 111, .06);
   --shadow: 0 10px 30px rgba(60, 20, 90, .15);
-  --rain: rgba(80, 60, 140, .05);
   --title: #1b1030;
 }
 
@@ -54,7 +53,6 @@
     --warn: #fcee0a;
     --row-hover: rgba(34, 228, 255, .07);
     --shadow: 0 12px 40px rgba(0, 0, 0, .55);
-    --rain: rgba(160, 220, 255, .06);
     --title: #ffffff;
   }
 }
@@ -82,7 +80,6 @@
   --warn: #fcee0a;
   --row-hover: rgba(34, 228, 255, .07);
   --shadow: 0 12px 40px rgba(0, 0, 0, .55);
-  --rain: rgba(160, 220, 255, .06);
   --title: #ffffff;
 }
 
@@ -95,10 +92,10 @@
   --clip-sm: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
 }
 
-/* ── 背景：夜空 → 霓虹霧氣，細雨 ──────────────────────────────── */
+/* ── 背景：夜空 → 霓虹霧氣 ──────────────────────────────── */
 * { box-sizing: border-box; }
 
-/* 背景放在 html 上，body 透明，雨（z-index -1）才會疊在背景之上、內容之下 */
+/* 背景放在 html 上，body 透明，流動的霓虹光（z-index -1）才會疊在背景之上、內容之下 */
 html {
   background:
     radial-gradient(1000px 520px at 60% -12%, var(--sky-top), transparent 70%),
@@ -112,13 +109,6 @@ body {
   color: var(--text);
   font: 15px/1.55 var(--font);
 }
-body::after {
-  /* 斜斜的細雨 */
-  content: ""; position: fixed; inset: -50% 0 0 0; z-index: -1; pointer-events: none;
-  background: repeating-linear-gradient(105deg, transparent 0 22px, var(--rain) 22px 23px, transparent 23px 47px);
-  animation: rain 1.2s linear infinite;
-}
-@keyframes rain { to { transform: translate(-12px, 50%); } }
 
 ::selection { background: var(--accent); color: #fff; }
 
@@ -397,10 +387,6 @@ details summary { cursor: pointer; }
 .theme-toggle button:hover { filter: none; }
 .theme-toggle button[aria-pressed="true"] { background: var(--accent); color: #fff; }
 
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
-  body::after { animation: none; }
-}
 
 /* ── 背景：霓虹漸層天空（上青、中紫、下桃紅） ───────────────────────────── */
 :root { --sky: linear-gradient(180deg, #d4f4fa 0%, #e9e4fb 45%, #fbdcef 80%, #ffcfe6 100%); }
@@ -509,3 +495,36 @@ input:focus, select:focus, textarea:focus { border-color: var(--main); box-shado
 .sidebar nav a:hover:not(.active) { border-left-color: #ff2a9d; }
 .nav-group { color: #00f0ff; }
 .nav-group::before { color: #ff2a9d; }
+
+/* ── 流動的霓虹光：桃紅、紫、青三團光在背景緩慢飄移、呼吸 ─────────────────── */
+:root { --flow-opacity: .55; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --flow-opacity: .8; } }
+:root[data-theme="dark"] { --flow-opacity: .8; }
+body::after {
+  content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 20% 75%, rgba(255, 42, 157, .55), transparent 70%),
+    radial-gradient(34% 30% at 80% 25%, rgba(0, 240, 255, .45), transparent 70%),
+    radial-gradient(30% 28% at 55% 55%, rgba(150, 60, 255, .4), transparent 70%),
+    radial-gradient(26% 24% at 85% 85%, rgba(255, 42, 157, .35), transparent 70%);
+  opacity: var(--flow-opacity);
+  filter: blur(30px);
+  will-change: transform, opacity;
+  animation: neon-flow 24s ease-in-out infinite alternate, neon-breathe 9s ease-in-out infinite alternate;
+}
+@keyframes neon-flow {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate(6%, -5%) rotate(8deg) scale(1.08); }
+  66%  { transform: translate(-5%, 4%) rotate(-6deg) scale(.96); }
+  100% { transform: translate(4%, 6%) rotate(4deg) scale(1.05); }
+}
+/* 只動 transform 和 opacity，瀏覽器可以交給 GPU，不會拖慢頁面 */
+@keyframes neon-breathe {
+  from { opacity: calc(var(--flow-opacity) * .7); }
+  to   { opacity: var(--flow-opacity); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  body::after { animation: none; }
+}
