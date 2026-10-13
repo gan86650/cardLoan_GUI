@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import loan_option, user_options %}
+{% from "_macros.html" import loan_option, person_picker %}
 {% block title %}轉借 · 借牌管理{% endblock %}
 {% block content %}
 <h1>🔁 轉借</h1>
@@ -14,9 +14,7 @@
       {% for l in loans %}{{ loan_option(l, selected) }}{% endfor %}
     </select>
   </label>
-  <label>新借用人
-    <select name="new_borrower_id" required>{{ user_options(users, "", "請選擇") }}</select>
-  </label>
+  {{ person_picker("new_borrower_id", "新借用人", exclude=me if me is defined else "") }}
   <button>轉借</button>
 </form>
 {% else %}

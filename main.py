@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -13,6 +13,7 @@ load_dotenv()
 import admin_db  # noqa: E402
 import auth  # noqa: E402
 import database as db  # noqa: E402
+import guild_members  # noqa: E402
 import member  # noqa: E402
 import member_db  # noqa: E402
 from web import (  # noqa: E402
@@ -111,6 +112,18 @@ async def logout(request: Request):
     return redirect("/login")
 
 
+# ── 選人欄位用的名單 ──────────────────────────────────────────────────────────
+@app.get("/people.json")
+async def people(request: Request):
+    if not (request.session.get("admin") or request.session.get("user_id")):
+        return JSONResponse({"error": "not logged in"}, status_code=401)
+    return JSONResponse([
+        {"id": p["discord_id"], "name": p["username"], "nick": p["nick"],
+         "handle": p["handle"], "new": not p["registered"]}
+        for p in await guild_members.selectable_users()
+    ])
+
+
 # ── 首頁（/指令說明）────────────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -167,7 +180,7 @@ async def between(request: Request, a: str = "", b: str = ""):
 async def _form_context():
     guilds = await admin_db.list_guilds()
     return {
-        "users": await admin_db.list_users(),
+        "users": await guild_members.selectable_users(),
         "guilds": guilds,
         "default_guild": os.getenv("DEFAULT_GUILD_ID") or (guilds[0] if guilds else ""),
         "card_names": await admin_db.list_card_names(),
@@ -214,6 +227,9 @@ async def create_record(
         flash(request, "數量至少為 1", "error")
         return redirect("/record")
 
+    if error := await guild_members.ensure_users(lender_id, borrower_id):
+        flash(request, error, "error")
+        return redirect("/record")
     ids = await db.add_loans_bulk(
         guild_id.strip(), lender_id, borrower_id, [(card_name.strip(), quantity)],
         edition.strip() or None, note.strip() or None,
@@ -246,6 +262,9 @@ async def create_batch(
         flash(request, "數量至少為 1", "error")
         return redirect("/batch")
 
+    if error := await guild_members.ensure_users(lender_id, borrower_id):
+        flash(request, error, "error")
+        return redirect("/batch")
     ids = await db.add_loans_bulk(
         guild_id.strip(), lender_id, borrower_id, items,
         edition.strip() or None, note.strip() or None,
@@ -302,7 +321,7 @@ async def close_loan(request: Request, loan_id: int = Form(...), quantity: str =
 @app.get("/transfer", response_class=HTMLResponse, dependencies=admin)
 async def transfer_page(request: Request, id: int | None = None):
     loans = await admin_db.search_active_loans(None, None, None)
-    users = await admin_db.list_users()
+    users = await guild_members.selectable_users()
     return render(request, "transfer.html", loans=loans, users=users, selected=id)
 
 
@@ -318,6 +337,9 @@ async def transfer(request: Request, loan_id: int = Form(...), new_borrower_id: 
         return redirect(target)
     if new_borrower_id == loan["lender_id"]:
         flash(request, "對方就是原本的牌主，請改用「還牌」", "error")
+        return redirect(target)
+    if error := await guild_members.ensure_users(new_borrower_id):
+        flash(request, error, "error")
         return redirect(target)
 
     moved = await db.transfer_loan(loan_id, loan["borrower_id"], new_borrower_id)

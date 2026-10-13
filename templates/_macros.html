@@ -1,8 +1,19 @@
 {% macro user_options(users, selected="", blank="") %}
   {% if blank %}<option value="">{{ blank }}</option>{% endif %}
   {% for u in users %}
-    <option value="{{ u.discord_id }}" {{ 'selected' if u.discord_id == selected }}>{{ u.username }}</option>
+    <option value="{{ u.discord_id }}" {{ 'selected' if u.discord_id == selected }}>{{ u.username }}{% if u.registered is false %}（還沒用過平台）{% endif %}</option>
   {% endfor %}
+{% endmacro %}
+
+{# 可搜尋的選人欄位（static/picker.js），送出時欄位值是 Discord ID #}
+{% macro person_picker(name, label, exclude="") %}
+  <div class="picker" data-exclude="{{ exclude }}">
+    <span class="picker-label">{{ label }}</span>
+    <input type="text" class="picker-input" placeholder="輸入伺服器暱稱或 Discord 使用者名稱" autocomplete="off"
+           role="combobox" aria-expanded="false" aria-label="{{ label }}">
+    <input type="hidden" name="{{ name }}" class="picker-value">
+    <ul class="picker-list" role="listbox" hidden></ul>
+  </div>
 {% endmacro %}
 
 {% macro guild_field(guilds, default_guild) %}

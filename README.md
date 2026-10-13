@@ -51,6 +51,7 @@
 | `ADMIN_PASSWORD` | 選填，管理員密碼登入。不設就關閉密碼登入，只能用 Discord 當管理員 |
 | `SESSION_SECRET` | 簽登入 cookie 用的隨機長字串，例如 `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
 | `DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET` | Discord 登入用，見上方 |
+| `DISCORD_TOKEN` | 選填，bot 的 token。設了之後借牌、轉借的選單會列出伺服器所有成員（包含還沒用過平台的人），需要在 Developer Portal → Bot 打開 **Server Members Intent** |
 | `GUILD_ID` | 選填，只讓這些伺服器（逗號分隔）的成員登入；不填就用資料庫裡出現過的伺服器 |
 | `DEFAULT_GUILD_ID` | 選填，新增紀錄時預設的伺服器 ID（不填就用資料最多的那個） |
 | `TIMEZONE` | 選填，顯示時間的時區，預設 `Asia/Taipei` |
@@ -98,4 +99,4 @@ SOURCE_DATABASE_URL=Railway Postgres → Variables → DATABASE_PUBLIC_URL
 
 - `database.py` 是從 bot repo 複製過來的，bot 那邊改了 SQL 記得同步。
 - GUI 不會建 bot 的表或跑 bot 的 migration，這些交給 bot 啟動時處理；只會建自己的 `return_requests`。
-- 下拉選單只列出 `users` 表裡的人（用過 bot 就會自動加入），沒用過的人可以在「使用者」頁手動新增。
+- 有設 `DISCORD_TOKEN` 時，記錄和轉借的下拉選單會列出整個伺服器的成員，被選到的新成員會自動加進 `users`；沒設時只列出 `users` 表裡的人。

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import user_options, guild_field %}
+{% from "_macros.html" import person_picker, guild_field %}
 {% block title %}記錄借牌 · 借牌管理{% endblock %}
 {% block content %}
 <h1>📥 借牌／借出／紀錄他人</h1>
@@ -8,12 +8,8 @@
 <form method="post" class="card stack">
   {{ guild_field(guilds, default_guild) }}
   <div class="row">
-    <label>牌主（借出的人）
-      <select name="lender_id" required>{{ user_options(users, "", "請選擇") }}</select>
-    </label>
-    <label>借用人（借走的人）
-      <select name="borrower_id" required>{{ user_options(users, "", "請選擇") }}</select>
-    </label>
+    {{ person_picker("lender_id", "牌主（借出的人）") }}
+    {{ person_picker("borrower_id", "借用人（借走的人）") }}
   </div>
   <div class="row">
     <label>卡名
@@ -34,7 +30,7 @@
   <datalist id="card-names">
     {% for c in card_names %}<option value="{{ c }}">{% endfor %}
   </datalist>
-  <p class="hint">名單裡沒有的人，請先到 <a href="/users">使用者</a> 頁新增。要一次記很多張請用 <a href="/batch">批次紀錄</a>。</p>
+  <p class="hint">可以用伺服器暱稱或 Discord 使用者名稱搜尋；還沒用過平台的人被選到時會自動建立。要一次記很多張請用 <a href="/batch">批次紀錄</a>。</p>
   <button>新增紀錄</button>
 </form>
 {% endblock %}
