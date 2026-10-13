@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse
 
 import admin_db
 import database as db
+import guild_members
 import member_db
 from web import (
     MAX_BATCH_ITEMS, back, flash, parse_card_batch, redirect, render as _render,
@@ -59,7 +60,7 @@ async def render(request: Request, name: str, me: str, **context):
 async def _form_context():
     guilds = await admin_db.list_guilds()
     return {
-        "users": await admin_db.list_users(),
+        "users": await guild_members.selectable_users(),
         "guilds": guilds,
         "default_guild": os.getenv("DEFAULT_GUILD_ID") or (guilds[0] if guilds else ""),
         "card_names": await admin_db.list_card_names(),
@@ -153,6 +154,9 @@ async def create_record(
         flash(request, "數量至少為 1", "error")
         return redirect(target)
 
+    if error := await guild_members.ensure_users(lender_id, borrower_id):
+        flash(request, error, "error")
+        return redirect(target)
     ids = await db.add_loans_bulk(
         guild_id.strip(), lender_id, borrower_id, [(card_name.strip(), quantity)],
         edition.strip() or None, note.strip() or None,
@@ -191,6 +195,9 @@ async def create_batch(
         flash(request, "數量至少為 1", "error")
         return redirect("/me/batch")
 
+    if error := await guild_members.ensure_users(lender_id, borrower_id):
+        flash(request, error, "error")
+        return redirect("/me/batch")
     ids = await db.add_loans_bulk(
         guild_id.strip(), lender_id, borrower_id, items,
         edition.strip() or None, note.strip() or None,
@@ -327,7 +334,7 @@ async def reclaim(
 async def transfer_page(request: Request, id: int | None = None, me: str = Depends(require_member)):
     pending_ids = await member_db.pending_loan_ids()
     loans = [l for l in await db.get_active_loans_by_borrower(me) if l["id"] not in pending_ids]
-    users = [u for u in await admin_db.list_users() if u["discord_id"] != me]
+    users = [u for u in await guild_members.selectable_users() if u["discord_id"] != me]
     return await render(
         request, "transfer.html", me, action="/me/transfer",
         loans=loans, users=users, selected=id,
@@ -355,10 +362,10 @@ async def transfer(
     if await member_db.has_pending(loan_id):
         flash(request, f"#{loan_id} 有還牌申請在等確認，請先取消申請再轉借", "error")
         return redirect(target)
-    new_user = await db.get_user(new_borrower_id)
-    if new_user is None:
-        flash(request, "找不到新借用人", "error")
+    if error := await guild_members.ensure_users(new_borrower_id):
+        flash(request, error, "error")
         return redirect(target)
+    new_user = await db.get_user(new_borrower_id)
 
     if await db.transfer_loan(loan_id, me, new_borrower_id) is None:
         flash(request, f"#{loan_id} 狀態已變更，請重新整理後再試", "error")

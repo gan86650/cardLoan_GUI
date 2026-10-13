@@ -45,7 +45,7 @@
   <datalist id="card-names">
     {% for c in card_names %}<option value="{{ c }}">{% endfor %}
   </datalist>
-  <p class="hint">名單裡只有用過 bot 或登入過這個網站的人。</p>
+  <p class="hint">名單包含伺服器裡所有成員，標「還沒用過平台」的人被選到時會自動建立。</p>
   <button>記錄</button>
 </form>
 {% endblock %}
