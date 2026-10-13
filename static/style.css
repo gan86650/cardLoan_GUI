@@ -376,3 +376,12 @@ details summary { cursor: pointer; font-style: italic; }
 /* 彩色 emoji 跟暗色調不搭，選單與功能磚的圖示改成褪色的古銅色 */
 .sidebar nav a span, .tile-icon { filter: grayscale(1) sepia(.7) brightness(.95); }
 .sidebar nav a.active span, .tile:hover .tile-icon { filter: grayscale(.3) sepia(.4); }
+
+/* 內容區用滿整個畫面寬度（超寬螢幕才封頂），表格不用左右捲就看得到全部欄位 */
+.layout main { max-width: 1800px; padding: 32px clamp(16px, 3vw, 48px) 72px; }
+th, td { padding: 9px 12px; }
+td.note { min-width: 6em; max-width: 220px; }
+/* 名字、卡名太長時換行，而不是把表格撐到要左右捲；數字、日期、按鈕維持一行 */
+td { white-space: normal; min-width: 4em; }
+td.num, td.actions, td[title], th { white-space: nowrap; }
+td.actions { min-width: 0; }
