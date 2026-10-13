@@ -8,7 +8,7 @@ from fastapi import APIRouter, Form, Request
 
 import admin_db
 import database as db
-from web import flash, redirect
+from web import flash, redirect, start_session
 
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID", "")
 DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET", "")
@@ -62,11 +62,7 @@ async def fetch_discord_identity(code: str, redirect_uri: str) -> tuple[dict, li
 async def _sign_in(request: Request, discord_id: str, fallback_name: str):
     # 新使用者才寫入；已存在的保留 bot 同步的伺服器暱稱
     await admin_db.add_user(discord_id, fallback_name)
-    user = await db.get_user(discord_id)
-    request.session.clear()
-    request.session["admin"] = discord_id in ADMIN_DISCORD_IDS
-    request.session["user_id"] = discord_id
-    request.session["username"] = user["username"]
+    start_session(request, admin=discord_id in ADMIN_DISCORD_IDS, user_id=discord_id)
 
 
 @router.get("/auth/discord")

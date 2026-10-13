@@ -1,6 +1,7 @@
 """管理員頁面與使用者頁面共用的工具：樣板、提示訊息、登入檢查。"""
 import os
 import re
+import time
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
@@ -81,3 +82,29 @@ def back(request: Request, fallback: str = "/") -> str:
     ref = request.headers.get("referer", "")
     base = str(request.base_url)
     return "/" + ref[len(base):] if ref.startswith(base) else fallback
+
+
+# 登入時效：從登入起最多 SESSION_MAX_HOURS 小時；超過 SESSION_IDLE_MINUTES 分鐘沒動作也會登出
+SESSION_MAX_SECONDS = int(float(os.getenv("SESSION_MAX_HOURS", "12")) * 3600)
+SESSION_IDLE_SECONDS = int(float(os.getenv("SESSION_IDLE_MINUTES", "120")) * 60)
+
+
+def start_session(request: Request, **values):
+    """登入：清掉舊的 session（避免沿用登入前的內容），寫入身分與登入時間。"""
+    request.session.clear()
+    now = int(time.time())
+    request.session.update(values, login_at=now, seen_at=now)
+
+
+def check_session_expiry(request: Request):
+    """過期就登出；沒過期就更新最後活動時間（每分鐘最多更新一次）。"""
+    session = request.session
+    if not (session.get("admin") or session.get("user_id")):
+        return
+    now = int(time.time())
+    if (now - session.get("login_at", 0) > SESSION_MAX_SECONDS
+            or now - session.get("seen_at", 0) > SESSION_IDLE_SECONDS):
+        session.clear()
+        flash(request, "登入已過期，請重新登入", "error")
+    elif now - session.get("seen_at", 0) > 60:
+        session["seen_at"] = now

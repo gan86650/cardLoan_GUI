@@ -390,6 +390,5 @@ async def update_settings(request: Request, username: str = Form(...), me: str =
         flash(request, error, "error")
     else:
         user = await db.get_user(me)
-        request.session["username"] = user["username"]
         flash(request, f"顯示名稱已改成「{user['username']}」")
     return redirect("/me/settings")

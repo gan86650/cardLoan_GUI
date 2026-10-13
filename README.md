@@ -54,6 +54,8 @@
 | `DISCORD_TOKEN` | 選填，bot 的 token。設了之後借牌、轉借的選單會列出伺服器所有成員（包含還沒用過平台的人），需要在 Developer Portal → Bot 打開 **Server Members Intent** |
 | `GUILD_ID` | 選填，只讓這些伺服器（逗號分隔）的成員登入；不填就用資料庫裡出現過的伺服器 |
 | `DEFAULT_GUILD_ID` | 選填，新增紀錄時預設的伺服器 ID（不填就用資料最多的那個） |
+| `SESSION_MAX_HOURS` | 選填，登入後最多維持幾小時，預設 12 |
+| `SESSION_IDLE_MINUTES` | 選填，閒置幾分鐘自動登出，預設 120 |
 | `TIMEZONE` | 選填，顯示時間的時區，預設 `Asia/Taipei` |
 | `DEV_LOGIN` | 本機測試用，設 `1` 時登入頁可以直接選使用者登入；Railway 上設了會拒絕啟動 |
 
