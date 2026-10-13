@@ -186,3 +186,5 @@ form.inline { display: inline; }
 details summary { cursor: pointer; }
 .admin-login { margin-top: 10px; }
 .dev { border: 1px dashed var(--border); border-radius: 8px; padding: 10px; }
+.switch { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: .9rem; margin: 0 8px; }
+.switch:hover { border-color: var(--accent); text-decoration: none; }

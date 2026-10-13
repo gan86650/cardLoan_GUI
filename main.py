@@ -20,7 +20,8 @@ from web import (  # noqa: E402
     redirect, render, require_admin, templates,
 )
 
-ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+# 選填：沒設就關閉密碼登入，只有 ADMIN_DISCORD_IDS 裡的人能用 Discord 登入當管理員
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 SESSION_SECRET = os.environ["SESSION_SECRET"]
 
 # 側邊選單：照 bot 的 /指令說明 分組，首頁也用這份清單
@@ -90,12 +91,13 @@ async def login_page(request: Request):
         request, "login.html",
         discord_enabled=auth.DISCORD_ENABLED,
         dev_users=await admin_db.list_users() if auth.DEV_LOGIN else None,
+        password_login=bool(ADMIN_PASSWORD),
     )
 
 
 @app.post("/login")
 async def login(request: Request, password: str = Form(...)):
-    if hmac.compare_digest(password.encode(), ADMIN_PASSWORD.encode()):
+    if ADMIN_PASSWORD and hmac.compare_digest(password.encode(), ADMIN_PASSWORD.encode()):
         request.session.clear()
         request.session["admin"] = True
         return redirect("/")

@@ -29,6 +29,13 @@
           {% endfor %}
         {% endfor %}
       </nav>
+      {% if request.session.get("admin") and request.session.get("user_id") %}
+        {% if me is defined %}
+          <a class="switch" href="/">🛠️ 切到管理員介面</a>
+        {% else %}
+          <a class="switch" href="/me">🏠 切到我的借牌</a>
+        {% endif %}
+      {% endif %}
       <form method="post" action="/logout"><button class="link">登出</button></form>
     </aside>
     <main>

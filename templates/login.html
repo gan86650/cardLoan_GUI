@@ -19,12 +19,14 @@
     </form>
   {% endif %}
 
+  {% if password_login %}
   <details {{ 'open' if not discord_enabled and not dev_users }}>
-    <summary class="hint">管理員登入</summary>
+    <summary class="hint">管理員密碼登入</summary>
     <form method="post" action="/login" class="stack admin-login">
       <input type="password" name="password" required placeholder="管理員密碼">
       <button class="secondary-btn">登入</button>
     </form>
   </details>
+  {% endif %}
 </div>
 {% endblock %}
