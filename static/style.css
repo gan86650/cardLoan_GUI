@@ -172,6 +172,7 @@ tbody tr:hover { background: var(--row-hover); }
 .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
 
 .whoami { padding: 0 8px; color: var(--muted); font-size: .9rem; }
+a.whoami:hover { color: var(--accent); }
 .count {
   margin-left: auto; min-width: 20px; padding: 0 6px; border-radius: 999px;
   background: var(--warn); color: #fff; font-size: .75rem; text-align: center; line-height: 20px;

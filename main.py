@@ -57,6 +57,7 @@ async def lifespan(app: FastAPI):
     yield
     if db._pool is not None:
         await db._pool.close()
+        db._pool = None
 
 
 app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
@@ -385,6 +386,13 @@ async def create_user(request: Request, discord_id: str = Form(...), username: s
     else:
         flash(request, f"{discord_id} 已經存在", "error")
     return redirect("/users")
+
+
+@app.post("/users/{discord_id}/rename", dependencies=admin)
+async def rename_user(request: Request, discord_id: str, username: str = Form(...)):
+    error = await admin_db.rename_user(discord_id, username)
+    flash(request, error or "顯示名稱已更新", "error" if error else "ok")
+    return redirect(f"/users/{discord_id}")
 
 
 @app.get("/users/{discord_id}", response_class=HTMLResponse, dependencies=admin)
