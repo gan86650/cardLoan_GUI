@@ -3,74 +3,77 @@
    深色是主要風格；淺色是「羊皮紙」版。data-theme 由右下角的切換按鈕設定，沒設定時跟隨系統。 */
 :root {
   color-scheme: light;
-  --bg: #e6d8b9;
-  --vignette: rgba(70, 40, 10, .35);
-  --ember: rgba(150, 60, 20, .12);
-  --surface: #f3e9d2;
-  --surface-2: #ebdfc3;
-  --text: #2a1c10;
-  --muted: #6e5a42;
-  --border: #b4966a;
-  --gold: #8a6417;
-  --gold-soft: rgba(138, 100, 23, .35);
-  --crimson: #7d1a17;
-  --on-crimson: #f6e7c4;
-  --glow: rgba(138, 100, 23, .25);
-  --ok-bg: rgba(80, 110, 40, .12);
-  --ok-text: #3f5e1c;
-  --err-bg: rgba(125, 26, 23, .1);
-  --err-text: #7d1a17;
-  --warn: #a8361a;
-  --row-hover: rgba(138, 100, 23, .08);
-  --shadow: 0 6px 18px rgba(60, 35, 10, .2);
+  --bg: #e6e4f2;
+  --vignette: rgba(40, 30, 90, .28);
+  --ember: rgba(60, 90, 200, .12);
+  --surface: #f4f3fb;
+  --surface-2: #ebe9f6;
+  --text: #1c1a33;
+  --muted: #5f5b80;
+  --border: #b3aedb;
+  --gold: #5a45c9;
+  --gold-soft: rgba(90, 69, 201, .3);
+  --blue: #2f5fc4;
+  --crimson: #3b2d96;
+  --on-crimson: #ffffff;
+  --glow: rgba(90, 69, 201, .22);
+  --ok-bg: rgba(40, 130, 90, .1);
+  --ok-text: #1f6b4a;
+  --err-bg: rgba(190, 40, 80, .1);
+  --err-text: #a62650;
+  --warn: #c2365a;
+  --row-hover: rgba(90, 69, 201, .07);
+  --shadow: 0 6px 18px rgba(30, 20, 80, .18);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #0c0a09;
+    --bg: #07070d;
     --vignette: rgba(0, 0, 0, .75);
-    --ember: rgba(140, 40, 20, .16);
-    --surface: #16120f;
-    --surface-2: #1d1814;
-    --text: #e6dcc6;
-    --muted: #9a8b74;
-    --border: #3b3024;
-    --gold: #c9a24a;
-    --gold-soft: rgba(201, 162, 74, .3);
-    --crimson: #6e1414;
-    --on-crimson: #f1dfb2;
-    --glow: rgba(214, 160, 70, .35);
+    --ember: rgba(90, 50, 200, .2);
+    --surface: #11111c;
+    --surface-2: #181829;
+    --text: #e3e2f2;
+    --muted: #8f8cab;
+    --border: #2a2945;
+    --gold: #a48cff;
+    --gold-soft: rgba(164, 140, 255, .3);
+  --blue: #6ea8ff;
+    --crimson: #3a2a8c;
+    --on-crimson: #ece8ff;
+    --glow: rgba(120, 110, 255, .35);
     --ok-bg: rgba(120, 150, 80, .1);
     --ok-text: #a9c47f;
-    --err-bg: rgba(160, 30, 30, .14);
-    --err-text: #e0786a;
-    --warn: #e0662f;
-    --row-hover: rgba(201, 162, 74, .06);
+    --err-bg: rgba(200, 40, 90, .14);
+    --err-text: #ff7d9c;
+    --warn: #ff6f91;
+    --row-hover: rgba(164, 140, 255, .07);
     --shadow: 0 10px 30px rgba(0, 0, 0, .6);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0c0a09;
+  --bg: #07070d;
   --vignette: rgba(0, 0, 0, .75);
-  --ember: rgba(140, 40, 20, .16);
-  --surface: #16120f;
-  --surface-2: #1d1814;
-  --text: #e6dcc6;
-  --muted: #9a8b74;
-  --border: #3b3024;
-  --gold: #c9a24a;
-  --gold-soft: rgba(201, 162, 74, .3);
-  --crimson: #6e1414;
-  --on-crimson: #f1dfb2;
-  --glow: rgba(214, 160, 70, .35);
+  --ember: rgba(90, 50, 200, .2);
+  --surface: #11111c;
+  --surface-2: #181829;
+  --text: #e3e2f2;
+  --muted: #8f8cab;
+  --border: #2a2945;
+  --gold: #a48cff;
+  --gold-soft: rgba(164, 140, 255, .3);
+  --blue: #6ea8ff;
+  --crimson: #3a2a8c;
+  --on-crimson: #ece8ff;
+  --glow: rgba(120, 110, 255, .35);
   --ok-bg: rgba(120, 150, 80, .1);
   --ok-text: #a9c47f;
-  --err-bg: rgba(160, 30, 30, .14);
-  --err-text: #e0786a;
-  --warn: #e0662f;
-  --row-hover: rgba(201, 162, 74, .06);
+  --err-bg: rgba(200, 40, 90, .14);
+  --err-text: #ff7d9c;
+  --warn: #ff6f91;
+  --row-hover: rgba(164, 140, 255, .07);
   --shadow: 0 10px 30px rgba(0, 0, 0, .6);
 }
 
@@ -137,19 +140,19 @@ code { font-family: var(--font-num); color: var(--gold); }
 
 .sidebar {
   width: 236px; flex-shrink: 0;
-  background: url("/static/grain.svg"), linear-gradient(180deg, #120f0c, #0a0807);
-  border-right: 1px solid #3b3024;
-  box-shadow: inset -1px 0 0 rgba(201, 162, 74, .15), 6px 0 24px rgba(0, 0, 0, .5);
+  background: url("/static/grain.svg"), linear-gradient(180deg, #0f0f1d, #07070d);
+  border-right: 1px solid #2a2945;
+  box-shadow: inset -1px 0 0 rgba(164, 140, 255, .18), 6px 0 24px rgba(0, 0, 0, .5);
   padding: 22px 12px;
   display: flex; flex-direction: column; gap: 12px;
   position: sticky; top: 0; height: 100vh; overflow-y: auto;
   /* 側邊欄永遠是暗色，淺色模式也一樣 */
-  --text: #e6dcc6; --muted: #9a8b74; --gold: #c9a24a; --row-hover: rgba(201, 162, 74, .07);
+  --text: #e3e2f2; --muted: #8f8cab; --gold: #a48cff; --row-hover: rgba(164, 140, 255, .08);
   color: var(--text);
 }
 .brand {
   font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: .12em;
-  color: var(--gold); padding: 0 8px; text-shadow: 0 0 14px rgba(214, 160, 70, .4);
+  color: var(--gold); padding: 0 8px; text-shadow: 0 0 14px rgba(120, 110, 255, .45);
 }
 .brand:hover { text-decoration: none; }
 .sidebar nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
@@ -158,14 +161,14 @@ code { font-family: var(--font-num); color: var(--gold); }
   border-left: 2px solid transparent; transition: background .2s, border-color .2s, color .2s;
 }
 .sidebar nav a span { width: 1.3em; text-align: center; opacity: .85; }
-.sidebar nav a:hover { background: var(--row-hover); border-left-color: rgba(201, 162, 74, .5); text-decoration: none; }
+.sidebar nav a:hover { background: var(--row-hover); border-left-color: rgba(164, 140, 255, .5); text-decoration: none; }
 .sidebar nav a.active {
-  color: #f1dfb2; font-weight: 600;
-  background: linear-gradient(90deg, rgba(110, 20, 20, .75), rgba(110, 20, 20, .1));
-  border-left-color: #c9a24a;
+  color: #ece8ff; font-weight: 600;
+  background: linear-gradient(90deg, rgba(70, 50, 170, .75), rgba(40, 70, 170, .12));
+  border-left-color: #6ea8ff;
 }
 .nav-group {
-  font-family: var(--font-display); font-size: .74rem; color: #c9a24a; opacity: .75;
+  font-family: var(--font-display); font-size: .74rem; color: #8fa9ff; opacity: .85;
   padding: 16px 10px 4px; letter-spacing: .2em;
 }
 .nav-group::before { content: "✦ "; font-size: .65rem; }
@@ -173,14 +176,14 @@ code { font-family: var(--font-num); color: var(--gold); }
 .whoami { padding: 0 8px; color: var(--muted); font-size: .95rem; font-style: italic; }
 a.whoami:hover { color: var(--gold); }
 .switch {
-  padding: 6px 10px; margin: 0 8px; font-size: .9rem; color: #c9a24a;
-  border: 1px solid rgba(201, 162, 74, .5);
+  padding: 6px 10px; margin: 0 8px; font-size: .9rem; color: #a48cff;
+  border: 1px solid rgba(164, 140, 255, .5);
 }
-.switch:hover { background: rgba(201, 162, 74, .1); text-decoration: none; }
+.switch:hover { background: rgba(164, 140, 255, .12); text-decoration: none; }
 
 @media (max-width: 760px) {
   .layout { flex-direction: column; }
-  .sidebar { width: auto; height: auto; position: static; border-right: 0; border-bottom: 1px solid #3b3024; }
+  .sidebar { width: auto; height: auto; position: static; border-right: 0; border-bottom: 1px solid #2a2945; }
   .sidebar nav { flex-direction: row; flex-wrap: wrap; }
   .nav-group { display: none; }
 }
@@ -214,7 +217,7 @@ a.whoami:hover { color: var(--gold); }
   text-shadow: 0 0 14px var(--glow); font-variant-numeric: lining-nums tabular-nums;
 }
 .stat span { color: var(--muted); font-size: .9rem; font-style: italic; }
-.stat.warn b { color: var(--warn); text-shadow: 0 0 14px rgba(224, 102, 47, .45); }
+.stat.warn b { color: var(--warn); text-shadow: 0 0 14px rgba(255, 111, 145, .45); }
 
 .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .tile {
@@ -253,16 +256,16 @@ input[type="checkbox"] { accent-color: var(--crimson); width: 16px; height: 16px
 
 button, .button {
   font: 600 .95rem var(--font-display); letter-spacing: .1em; cursor: pointer;
-  background: linear-gradient(180deg, #8a1c18, var(--crimson));
+  background: linear-gradient(180deg, #4b3bb5, var(--crimson));
   color: var(--on-crimson);
   border: 1px solid var(--gold); border-radius: 2px; padding: 9px 22px;
-  box-shadow: inset 0 0 0 2px var(--crimson), inset 0 0 0 3px rgba(241, 223, 178, .25);
+  box-shadow: inset 0 0 0 2px var(--crimson), inset 0 0 0 3px rgba(236, 232, 255, .22);
   align-self: flex-start;
   transition: box-shadow .2s, filter .2s;
 }
 button:hover, .button:hover {
   filter: brightness(1.12); text-decoration: none;
-  box-shadow: inset 0 0 0 2px var(--crimson), inset 0 0 0 3px rgba(241, 223, 178, .35), 0 0 16px var(--glow);
+  box-shadow: inset 0 0 0 2px var(--crimson), inset 0 0 0 3px rgba(236, 232, 255, .32), 0 0 16px var(--glow);
 }
 .button.secondary, .small-btn.secondary, .secondary-btn {
   background: transparent; color: var(--gold); box-shadow: none;
@@ -295,7 +298,7 @@ tbody tr { transition: background .15s; }
 tbody tr:hover { background: var(--row-hover); }
 td.note { white-space: normal; min-width: 80px; font-style: italic; }
 .num { text-align: right; font-family: var(--font-num); font-variant-numeric: lining-nums tabular-nums; }
-.warn { color: var(--warn); font-weight: 600; text-shadow: 0 0 10px rgba(224, 102, 47, .35); }
+.warn { color: var(--warn); font-weight: 600; text-shadow: 0 0 10px rgba(255, 111, 145, .35); }
 .empty { color: var(--muted); padding: 12px 0; font-style: italic; }
 .empty::before { content: "❧ "; color: var(--gold); font-style: normal; }
 td form { margin: 0; }
@@ -330,7 +333,7 @@ td form { margin: 0; }
 
 .count {
   margin-left: auto; min-width: 20px; padding: 0 6px;
-  background: #6e1414; color: #f1dfb2; border: 1px solid #c9a24a;
+  background: #3a2a8c; color: #ece8ff; border: 1px solid #a48cff;
   font-size: .75rem; text-align: center; line-height: 18px;
 }
 .callout { border-color: var(--warn); padding: 6px 18px 18px; margin-bottom: 18px; }
@@ -373,9 +376,9 @@ details summary { cursor: pointer; font-style: italic; }
   * { transition: none !important; }
 }
 
-/* 彩色 emoji 跟暗色調不搭，選單與功能磚的圖示改成褪色的古銅色 */
-.sidebar nav a span, .tile-icon { filter: grayscale(1) sepia(.7) brightness(.95); }
-.sidebar nav a.active span, .tile:hover .tile-icon { filter: grayscale(.3) sepia(.4); }
+/* 彩色 emoji 跟暗色調不搭，選單與功能磚的圖示染成淡淡的藍紫色 */
+.sidebar nav a span, .tile-icon { filter: grayscale(1) sepia(.6) hue-rotate(205deg) saturate(1.6) brightness(1.05); }
+.sidebar nav a.active span, .tile:hover .tile-icon { filter: grayscale(.4) sepia(.3) hue-rotate(205deg) saturate(1.4); }
 
 /* 內容區用滿整個畫面寬度（超寬螢幕才封頂），表格不用左右捲就看得到全部欄位 */
 .layout main { max-width: 1800px; padding: 32px clamp(16px, 3vw, 48px) 72px; }
@@ -402,3 +405,14 @@ h1 .avatar-lg { margin-right: 6px; vertical-align: -12px; }
 .avatar-edit { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
 .picker-item .avatar { align-self: center; }
 input[type="file"] { font-size: .9rem; }
+
+/* ── 藍紫黑：藍色用在連結、表頭、統計數字，紫色用在標題、按鈕、選單 ───────── */
+a, code { color: var(--blue); }
+th { color: var(--blue); }
+.stat b { color: var(--blue); text-shadow: 0 0 14px rgba(110, 168, 255, .35); }
+.stat.warn b { color: var(--warn); }
+h1::after {
+  background:
+    linear-gradient(270deg, var(--gold), transparent) left center / calc(50% - 12px) 1px no-repeat,
+    linear-gradient(90deg, var(--blue), transparent) right center / calc(50% - 12px) 1px no-repeat;
+}
