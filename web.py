@@ -11,22 +11,21 @@ from fastapi.templating import Jinja2Templates
 
 TZ = ZoneInfo(os.getenv("TIMEZONE", "Asia/Taipei"))
 
-# 跟 bot 的 cogs/loans.py 保持一致
 MAX_BATCH_ITEMS = 20
-_BATCH_LINE_RE = re.compile(r"^(.+?)(?:\s+[xX](\d+))?$")
+# 「數量 卡名」，例如「2 Death's Shadow」；數量後面可加 x（「2x Death's Shadow」），省略數量就是 1 張
+_BATCH_LINE_RE = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+)$")
 
 
 def parse_card_batch(raw: str) -> list[tuple[str, int]]:
+    """一行一張卡。不再用逗號分隔，因為很多卡名本身就有逗號（例如 Kozilek, Butcher of Truth）。"""
     items: list[tuple[str, int]] = []
     for line in raw.splitlines():
-        for part in line.split(","):
-            part = part.strip()
-            if not part:
-                continue
-            match = _BATCH_LINE_RE.match(part)
-            name = match.group(1).strip()
-            quantity = int(match.group(2)) if match.group(2) else 1
-            items.append((name, quantity))
+        line = line.strip()
+        if not line:
+            continue
+        match = _BATCH_LINE_RE.match(line)
+        quantity = int(match.group(1)) if match.group(1) else 1
+        items.append((match.group(2).strip(), quantity))
     return items
 
 
