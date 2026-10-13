@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_table %}
+{% block title %}{{ user.username }} · 借牌管理{% endblock %}
+{% block content %}
+<h1>{{ user.username }} <span class="muted small">{{ user.discord_id }}</span></h1>
+
+<h2>📥 借進來的牌</h2>
+{{ loan_table(borrowed, show_borrower=False) }}
+
+<h2>📤 借出去的牌</h2>
+{{ loan_table(lent, show_lender=False) }}
+
+<form method="post" action="/users/{{ user.discord_id }}/reminder" class="card stack narrow-left">
+  <h2>🔔 到期提醒</h2>
+  <label class="check">
+    <input type="checkbox" name="enabled" {{ 'checked' if user.reminder_enabled }}> 開啟提醒
+  </label>
+  <label>借牌超過幾天後提醒
+    <input type="number" name="days" min="1" value="{{ user.reminder_days or 14 }}" required>
+  </label>
+  <button>儲存</button>
+</form>
+{% endblock %}

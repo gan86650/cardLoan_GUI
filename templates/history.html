@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% from "_macros.html" import loan_table %}
+{% block title %}歸還紀錄 · 借牌管理{% endblock %}
+{% block content %}
+<h1>歸還紀錄 <span class="muted small">最近 200 筆</span></h1>
+{{ loan_table(loans, returned=True) }}
+{% endblock %}

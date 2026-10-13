@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}#{{ loan.id }} · 借牌管理{% endblock %}
+{% block content %}
+<h1>#{{ loan.id }} {{ loan.card_name }}{% if loan.edition %} <span class="muted">[{{ loan.edition }}]</span>{% endif %}</h1>
+
+<div class="card">
+  <dl class="details">
+    <dt>狀態</dt>
+    <dd>{% if loan.returned_at %}<span class="badge ok">已歸還</span>{% else %}<span class="badge">借出中</span>{% endif %}</dd>
+    <dt>數量</dt><dd>{{ loan.quantity }}</dd>
+    <dt>牌主</dt><dd><a href="/users/{{ loan.lender_id }}">{{ loan.lender_name }}</a></dd>
+    <dt>借用人</dt><dd><a href="/users/{{ loan.borrower_id }}">{{ loan.borrower_name }}</a></dd>
+    <dt>借出時間</dt><dd>{{ loan.borrowed_at | fmt_time }}（{{ loan.borrowed_at | days_since }} 天前）</dd>
+    {% if loan.returned_at %}<dt>歸還時間</dt><dd>{{ loan.returned_at | fmt_time }}</dd>{% endif %}
+    {% if loan.note %}<dt>備註</dt><dd>{{ loan.note }}</dd>{% endif %}
+    <dt>伺服器</dt><dd class="muted">{{ loan.guild_id }}</dd>
+  </dl>
+</div>
+
+{% if not loan.returned_at %}
+<div class="grid2">
+  <form method="post" action="/loans/{{ loan.id }}/return" class="card stack"
+        onsubmit="return confirm('確定要標記歸還嗎？')">
+    <h2>還牌</h2>
+    <label>歸還數量
+      <input type="number" name="quantity" min="1" max="{{ loan.quantity }}" value="{{ loan.quantity }}" required>
+    </label>
+    <span class="hint">少於 {{ loan.quantity }} 張就是部分歸還，剩下的繼續算借出中</span>
+    <button>標記歸還</button>
+  </form>
+
+  <form method="post" action="/loans/{{ loan.id }}/transfer" class="card stack"
+        onsubmit="return confirm('確定要轉借嗎？')">
+    <h2>轉借</h2>
+    <label>新借用人
+      <select name="new_borrower_id" required>
+        <option value="">請選擇</option>
+        {% for u in users if u.discord_id not in (loan.lender_id, loan.borrower_id) %}
+          <option value="{{ u.discord_id }}">{{ u.username }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <span class="hint">牌主不變，借貸關係從 {{ loan.borrower_name }} 轉到新借用人</span>
+    <button>轉借</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

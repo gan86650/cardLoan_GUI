@@ -1,0 +1,47 @@
+{% macro user_options(users, selected="", blank="") %}
+  {% if blank %}<option value="">{{ blank }}</option>{% endif %}
+  {% for u in users %}
+    <option value="{{ u.discord_id }}" {{ 'selected' if u.discord_id == selected }}>{{ u.username }}</option>
+  {% endfor %}
+{% endmacro %}
+
+{% macro loan_table(loans, show_lender=True, show_borrower=True, returned=False) %}
+  {% if not loans %}
+    <p class="empty">沒有紀錄</p>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>卡名</th><th>版本</th><th class="num">數量</th>
+        {% if show_lender %}<th>牌主</th>{% endif %}
+        {% if show_borrower %}<th>借用人</th>{% endif %}
+        <th>借出時間</th>
+        {% if returned %}<th>歸還時間</th>{% else %}<th class="num">天數</th>{% endif %}
+        <th>備註</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in loans %}
+      <tr>
+        <td><a href="/loans/{{ l.id }}">#{{ l.id }}</a></td>
+        <td><a href="/loans/{{ l.id }}">{{ l.card_name }}</a></td>
+        <td>{{ l.edition or "" }}</td>
+        <td class="num">{{ l.quantity }}</td>
+        {% if show_lender %}<td><a href="/users/{{ l.lender_id }}">{{ l.lender_name }}</a></td>{% endif %}
+        {% if show_borrower %}<td><a href="/users/{{ l.borrower_id }}">{{ l.borrower_name }}</a></td>{% endif %}
+        <td class="muted">{{ l.borrowed_at | fmt_time }}</td>
+        {% if returned %}
+          <td class="muted">{{ l.returned_at | fmt_time }}</td>
+        {% else %}
+          {% set d = l.borrowed_at | days_since %}
+          <td class="num {{ 'warn' if d >= 14 }}">{{ d }}</td>
+        {% endif %}
+        <td class="muted">{{ l.note or "" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+{% endmacro %}
