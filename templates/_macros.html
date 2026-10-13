@@ -70,6 +70,7 @@
           <a href="/return?id={{ l.id }}" class="chip">還牌</a>
           <a href="/reclaim?id={{ l.id }}" class="chip">已取回</a>
           <a href="/transfer?id={{ l.id }}" class="chip">轉借</a>
+          <a href="/loans/{{ l.id }}#edit" class="chip">編輯</a>
         </td>
         {% endif %}
         <td><a href="/loans/{{ l.id }}">#{{ l.id }}</a></td>
@@ -121,6 +122,9 @@
           {% endif %}
           {% if l.lender_id == me %}
             <a href="/me/reclaim?id={{ l.id }}" class="chip">已取回</a>
+          {% endif %}
+          {% if me in (l.lender_id, l.borrower_id) %}
+            <a href="/me/loans/{{ l.id }}/edit" class="chip">編輯</a>
           {% endif %}
         </td>
         <td class="muted">#{{ l.id }}</td>
@@ -174,4 +178,39 @@
     </tbody>
   </table>
   </div>
+{% endmacro %}
+
+{# 稽核紀錄表格；loan_prefix 為空時不加連結（成員頁） #}
+{% macro audit_table(entries, action_names, loan_prefix="", show_loan=True) %}
+  {% if not entries %}
+    <p class="empty">還沒有紀錄</p>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>時間</th><th>操作者</th><th>動作</th>{% if show_loan %}<th>紀錄</th>{% endif %}<th>內容</th></tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td class="muted" title="{{ e.created_at | fmt_time }}">{{ e.created_at | fmt_time }}</td>
+        <td>
+          {% if e.actor_id %}{{ who(e.actor_id, e.actor_name) }}{% else %}{{ e.actor_name }}{% endif %}
+          {% if e.is_admin %}<span class="badge">管理員</span>{% endif %}
+        </td>
+        <td><span class="badge action-{{ e.action }}">{{ action_names.get(e.action, e.action) }}</span></td>
+        {% if show_loan %}
+        <td class="num">
+          {% if e.loan_id %}
+            {% if loan_prefix %}<a href="{{ loan_prefix }}{{ e.loan_id }}">#{{ e.loan_id }}</a>{% else %}#{{ e.loan_id }}{% endif %}
+          {% endif %}
+        </td>
+        {% endif %}
+        <td class="note">{{ e.summary }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
 {% endmacro %}

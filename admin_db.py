@@ -112,3 +112,24 @@ async def rename_user(discord_id: str, name: str) -> str | None:
             return f"「{name}」已經有人用了，換一個吧"
         await conn.execute("UPDATE users SET username=$1 WHERE discord_id=$2", name, discord_id)
     return None
+
+
+EDITABLE_FIELDS = {"card_name": "卡名", "edition": "版本", "quantity": "數量", "note": "備註"}
+
+
+async def update_loan(loan_id: int, card_name: str, edition: str | None, quantity: int, note: str | None):
+    """改借牌紀錄的卡名、版本、數量、備註。回傳 [(欄位名稱, 舊值, 新值)]；紀錄不存在回傳 None。"""
+    new = {"card_name": card_name, "edition": edition, "quantity": quantity, "note": note}
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            old = await conn.fetchrow("SELECT * FROM loans WHERE id=$1 FOR UPDATE", loan_id)
+            if old is None:
+                return None
+            changes = [(EDITABLE_FIELDS[k], old[k], v) for k, v in new.items() if old[k] != v]
+            if changes:
+                await conn.execute(
+                    "UPDATE loans SET card_name=$1, edition=$2, quantity=$3, note=$4 WHERE id=$5",
+                    card_name, edition, quantity, note, loan_id,
+                )
+            return changes

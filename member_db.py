@@ -116,7 +116,8 @@ async def approve(request_id: int, lender_id: str):
     result = await db.return_loan(req["loan_id"], req["requester_id"], req["quantity"])
     if result is None:
         await _set_status(request_id, "void")
-    return result
+        return None
+    return {**result, "loan_id": req["loan_id"]}
 
 
 async def reject(request_id: int, lender_id: str):

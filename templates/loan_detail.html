@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import who %}
+{% from "_macros.html" import who, audit_table %}
 {% block title %}#{{ loan.id }} · 借牌管理{% endblock %}
 {% block content %}
 <h1>#{{ loan.id }} {{ loan.card_name }}{% if loan.edition %} <span class="muted">[{{ loan.edition }}]</span>{% endif %}</h1>
@@ -48,4 +48,20 @@
   </form>
 </div>
 {% endif %}
+<form method="post" action="/loans/{{ loan.id }}/edit" class="card stack" id="edit">
+  <h2>編輯紀錄</h2>
+  <div class="row">
+    <label>卡名<input name="card_name" value="{{ loan.card_name }}" required></label>
+    <label>數量<input type="number" name="quantity" min="1" value="{{ loan.quantity }}" required></label>
+  </div>
+  <div class="row">
+    <label>版本<input name="edition" value="{{ loan.edition or '' }}"></label>
+    <label>備註<input name="note" value="{{ loan.note or '' }}"></label>
+  </div>
+  <span class="hint">每次修改都會寫進稽核紀錄。</span>
+  <button>儲存修改</button>
+</form>
+
+<h2>📜 這筆紀錄的歷程</h2>
+{{ audit_table(history, action_names, show_loan=False) }}
 {% endblock %}

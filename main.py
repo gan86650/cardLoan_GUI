@@ -11,6 +11,7 @@ from starlette.middleware.sessions import SessionMiddleware
 load_dotenv()
 
 import admin_db  # noqa: E402
+import audit  # noqa: E402
 import auth  # noqa: E402
 import avatars  # noqa: E402
 import database as db  # noqa: E402
@@ -43,6 +44,7 @@ MENU = [
         ("/lent", "📤", "借出去的牌", "某人借出去、還沒還的牌"),
         ("/between", "🔍", "查借牌", "兩個人之間的借貸狀況"),
         ("/history", "🗂️", "歸還紀錄", "最近歸還的紀錄"),
+        ("/audit", "📜", "稽核紀錄", "誰在什麼時候新增、修改了哪些紀錄"),
     ]),
     ("設定", [
         ("/reminders", "🔔", "提醒設定", "每個人的到期提醒開關與天數"),
@@ -58,6 +60,7 @@ async def lifespan(app: FastAPI):
     await db.get_pool()
     await member_db.ensure_schema()
     await avatars.ensure_schema()
+    await audit.ensure_schema()
     yield
     if db._pool is not None:
         await db._pool.close()
@@ -241,10 +244,12 @@ async def create_record(
     if error := await guild_members.ensure_users(lender_id, borrower_id):
         flash(request, error, "error")
         return redirect("/record")
+    items = [(card_name.strip(), quantity)]
     ids = await db.add_loans_bulk(
-        guild_id.strip(), lender_id, borrower_id, [(card_name.strip(), quantity)],
+        guild_id.strip(), lender_id, borrower_id, items,
         edition.strip() or None, note.strip() or None,
     )
+    await audit.log_created(request, ids, items, lender_id, borrower_id, edition.strip() or None)
     flash(request, f"已新增紀錄 #{ids[0]}：{card_name.strip()} x{quantity}")
     return redirect("/record")
 
@@ -280,6 +285,7 @@ async def create_batch(
         guild_id.strip(), lender_id, borrower_id, items,
         edition.strip() or None, note.strip() or None,
     )
+    await audit.log_created(request, ids, items, lender_id, borrower_id, edition.strip() or None)
     flash(request, f"已新增 {len(ids)} 筆紀錄：" + "、".join(f"#{i}" for i in ids))
     return redirect("/batch")
 
@@ -320,6 +326,12 @@ async def close_loan(request: Request, loan_id: int = Form(...), quantity: str =
 
     # 還牌與已取回對資料庫的效果一樣，都用牌主身分走 reclaim_loan（跟 bot 同一段邏輯）
     result = await db.reclaim_loan(loan_id, loan["lender_id"], qty)
+    if result is not None:
+        await audit.log(
+            request, "return" if action == "歸還" else "reclaim", loan_id,
+            f"{loan['borrower_name']} → {loan['lender_name']}：{result['card_name']} {action} {result['returned_qty']} 張"
+            + ("（全部還清）" if result["fully_returned"] else f"，剩 {result['remaining_qty']} 張"),
+        )
     if result is None:
         flash(request, f"#{loan_id} 已經{action}了", "error")
     elif result["fully_returned"]:
@@ -358,6 +370,10 @@ async def transfer(request: Request, loan_id: int = Form(...), new_borrower_id: 
         flash(request, f"#{loan_id} 狀態已變更，請重新整理後再試", "error")
     else:
         new_user = await db.get_user(new_borrower_id)
+        await audit.log(
+            request, "transfer", loan_id,
+            f"{loan['card_name']} x{loan['quantity']}：借用人 {loan['borrower_name']} → {new_user['username']}（牌主 {loan['lender_name']}）",
+        )
         flash(request, f"#{loan_id} {loan['card_name']} 已從 {loan['borrower_name']} 轉借給 {new_user['username']}")
     return redirect(target)
 
@@ -370,7 +386,35 @@ async def loan_detail(request: Request, loan_id: int):
         flash(request, f"找不到 #{loan_id}", "error")
         return redirect("/overview")
     users = await admin_db.list_users()
-    return render(request, "loan_detail.html", loan=loan, users=users)
+    history = await audit.search(loan_id=loan_id)
+    return render(request, "loan_detail.html", loan=loan, users=users, history=history,
+                  action_names=audit.ACTIONS)
+
+
+@app.post("/loans/{loan_id}/edit", dependencies=admin)
+async def edit_loan(
+    request: Request,
+    loan_id: int,
+    card_name: str = Form(...),
+    edition: str = Form(""),
+    quantity: int = Form(...),
+    note: str = Form(""),
+):
+    loan = await admin_db.get_loan_any(loan_id)
+    if loan is None:
+        flash(request, f"找不到 #{loan_id}", "error")
+        return redirect("/overview")
+    await audit.edit_loan(request, loan, card_name, edition, quantity, note)
+    return redirect(f"/loans/{loan_id}")
+
+
+@app.get("/audit", response_class=HTMLResponse, dependencies=admin)
+async def audit_page(request: Request, loan: str = "", action: str = ""):
+    raw = loan.strip().lstrip("#")
+    loan_id = int(raw) if raw.isdigit() else None
+    entries = await audit.search(loan_id=loan_id, action=action)
+    return render(request, "audit.html", entries=entries, action_names=audit.ACTIONS,
+                  filters={"loan": loan, "action": action}, loan_prefix="/loans/")
 
 
 # ── 歸還紀錄 ──────────────────────────────────────────────────────────────────
