@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -110,6 +110,18 @@ async def login(request: Request, password: str = Form(...)):
 async def logout(request: Request):
     request.session.clear()
     return redirect("/login")
+
+
+# ── 選人欄位用的名單 ──────────────────────────────────────────────────────────
+@app.get("/people.json")
+async def people(request: Request):
+    if not (request.session.get("admin") or request.session.get("user_id")):
+        return JSONResponse({"error": "not logged in"}, status_code=401)
+    return JSONResponse([
+        {"id": p["discord_id"], "name": p["username"], "nick": p["nick"],
+         "handle": p["handle"], "new": not p["registered"]}
+        for p in await guild_members.selectable_users()
+    ])
 
 
 # ── 首頁（/指令說明）────────────────────────────────────────────────────────

@@ -34,7 +34,11 @@ async def _guild_id() -> str | None:
 
 
 async def fetch_guild_members(guild_id: str) -> list[dict]:
-    """回傳 [{discord_id, username}]，username 用伺服器暱稱（跟 bot 的 display_name 一樣）。測試時會被替換掉。"""
+    """回傳 [{discord_id, username, nick, handle}]。
+
+    username 是預設顯示名稱：伺服器暱稱 > Discord 顯示名稱 > 使用者名稱（跟 bot 的 display_name 一樣）；
+    handle 是 Discord 使用者名稱（例如 enki8386）。測試時會被替換掉。
+    """
     members: list[dict] = []
     after = "0"
     async with httpx.AsyncClient(timeout=10, headers={"Authorization": f"Bot {_bot_token()}"}) as client:
@@ -49,6 +53,8 @@ async def fetch_guild_members(guild_id: str) -> list[dict]:
                 members.append({
                     "discord_id": user["id"],
                     "username": m.get("nick") or user.get("global_name") or user["username"],
+                    "nick": m.get("nick") or user.get("global_name") or "",
+                    "handle": user["username"],
                 })
             if len(page) < 1000:
                 return members
@@ -74,17 +80,20 @@ async def guild_members() -> list[dict]:
 
 
 async def selectable_users() -> list[dict]:
-    """已註冊的使用者 + 伺服器裡還沒用過平台的成員（registered=False）。"""
-    users = [
-        {"discord_id": u["discord_id"], "username": u["username"], "registered": True}
-        for u in await admin_db.list_users()
-    ]
-    known = {u["discord_id"] for u in users}
-    newcomers = [
-        {**m, "registered": False}
-        for m in await guild_members() if m["discord_id"] not in known
-    ]
-    return sorted(users + newcomers, key=lambda u: u["username"].lower())
+    """已註冊的使用者 + 伺服器裡還沒用過平台的成員（registered=False）。
+
+    每個人有 discord_id、username（網站上的名稱）、nick（伺服器暱稱）、handle（Discord 使用者名稱）。
+    """
+    members = {m["discord_id"]: m for m in await guild_members()}
+    people = []
+    for u in await admin_db.list_users():
+        m = members.pop(u["discord_id"], {})
+        people.append({
+            "discord_id": u["discord_id"], "username": u["username"],
+            "nick": m.get("nick", ""), "handle": m.get("handle", ""), "registered": True,
+        })
+    people += [{**m, "registered": False} for m in members.values()]
+    return sorted(people, key=lambda u: u["username"].lower())
 
 
 async def ensure_users(*discord_ids: str) -> str | None:

@@ -5,6 +5,17 @@
   {% endfor %}
 {% endmacro %}
 
+{# 可搜尋的選人欄位（static/picker.js），送出時欄位值是 Discord ID #}
+{% macro person_picker(name, label, exclude="") %}
+  <div class="picker" data-exclude="{{ exclude }}">
+    <span class="picker-label">{{ label }}</span>
+    <input type="text" class="picker-input" placeholder="輸入伺服器暱稱或 Discord 使用者名稱" autocomplete="off"
+           role="combobox" aria-expanded="false" aria-label="{{ label }}">
+    <input type="hidden" name="{{ name }}" class="picker-value">
+    <ul class="picker-list" role="listbox" hidden></ul>
+  </div>
+{% endmacro %}
+
 {% macro guild_field(guilds, default_guild) %}
   {% if guilds | length > 1 %}
   <label>伺服器

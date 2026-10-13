@@ -1,29 +1,20 @@
 {% extends "base.html" %}
-{% from "_macros.html" import user_options, guild_field %}
+{% from "_macros.html" import person_picker, guild_field %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <h1>{{ title }}</h1>
 <p class="muted">{{ desc }}</p>
 
-{% set others = users | rejectattr("discord_id", "equalto", me) | list %}
 <form method="post" class="card stack">
   {{ guild_field(guilds, default_guild) }}
   {% if mode == "borrow" %}
-    <label>牌主（你跟誰借）
-      <select name="lender_id" required>{{ user_options(others, "", "請選擇") }}</select>
-    </label>
+    {{ person_picker("lender_id", "牌主（你跟誰借）", exclude=me) }}
   {% elif mode == "lend" %}
-    <label>借用人（借給誰）
-      <select name="borrower_id" required>{{ user_options(others, "", "請選擇") }}</select>
-    </label>
+    {{ person_picker("borrower_id", "借用人（借給誰）", exclude=me) }}
   {% else %}
     <div class="row">
-      <label>牌主（借出的人）
-        <select name="lender_id" required>{{ user_options(users, "", "請選擇") }}</select>
-      </label>
-      <label>借用人（借走的人）
-        <select name="borrower_id" required>{{ user_options(users, "", "請選擇") }}</select>
-      </label>
+      {{ person_picker("lender_id", "牌主（借出的人）") }}
+      {{ person_picker("borrower_id", "借用人（借走的人）") }}
     </div>
   {% endif %}
   <div class="row">
@@ -45,7 +36,7 @@
   <datalist id="card-names">
     {% for c in card_names %}<option value="{{ c }}">{% endfor %}
   </datalist>
-  <p class="hint">名單包含伺服器裡所有成員，標「還沒用過平台」的人被選到時會自動建立。</p>
+  <p class="hint">可以用伺服器暱稱或 Discord 使用者名稱搜尋；還沒用過平台的人被選到時會自動建立。</p>
   <button>記錄</button>
 </form>
 {% endblock %}

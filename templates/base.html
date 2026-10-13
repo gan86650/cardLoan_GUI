@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}借牌管理{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/picker.js" defer></script>
 </head>
 <body>
   {% if request.session.get("admin") or request.session.get("user_id") %}

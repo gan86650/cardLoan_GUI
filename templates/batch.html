@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import user_options, guild_field %}
+{% from "_macros.html" import person_picker, guild_field %}
 {% block title %}批次紀錄 · 借牌管理{% endblock %}
 {% block content %}
 <h1>📦 批次紀錄</h1>
@@ -8,12 +8,8 @@
 <form method="post" class="card stack">
   {{ guild_field(guilds, default_guild) }}
   <div class="row">
-    <label>牌主（借出的人）
-      <select name="lender_id" required>{{ user_options(users, "", "請選擇") }}</select>
-    </label>
-    <label>借用人（借走的人）
-      <select name="borrower_id" required>{{ user_options(users, "", "請選擇") }}</select>
-    </label>
+    {{ person_picker("lender_id", "牌主（借出的人）") }}
+    {{ person_picker("borrower_id", "借用人（借走的人）") }}
   </div>
   <label>卡名列表
     <textarea name="cards" rows="6" required placeholder="一行一張，或用逗號分隔；加「x數量」指定張數&#10;例如：&#10;Robogon x2&#10;灰流麗 x3, 增殖的G"></textarea>

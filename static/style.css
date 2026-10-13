@@ -188,3 +188,18 @@ details summary { cursor: pointer; }
 .dev { border: 1px dashed var(--border); border-radius: 8px; padding: 10px; }
 .switch { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: .9rem; margin: 0 8px; }
 .switch:hover { border-color: var(--accent); text-decoration: none; }
+
+.picker { position: relative; display: flex; flex-direction: column; gap: 4px; }
+.picker-label { font-size: .9rem; color: var(--muted); }
+.picker.chosen .picker-input { border-color: var(--accent); }
+.picker-list {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
+  margin: 4px 0 0; padding: 4px; list-style: none;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .15); max-height: 300px; overflow-y: auto;
+}
+.picker-item { padding: 6px 8px; border-radius: 6px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.picker-item.active { background: var(--row-hover); }
+.picker-item .muted { font-size: .85rem; }
+.picker-new { font-size: .75rem; color: var(--warn); border: 1px solid var(--warn); border-radius: 999px; padding: 0 6px; }
+.picker-empty { padding: 6px 8px; color: var(--muted); }
