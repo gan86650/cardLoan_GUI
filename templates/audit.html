@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import audit_table %}
+{% block title %}稽核紀錄{% endblock %}
+{% block content %}
+<h1>📜 稽核紀錄 <span class="muted small">最近 {{ entries | length }} 筆</span></h1>
+<p class="muted">
+  {% if me is defined %}跟你有關的借牌紀錄：你做的操作，以及你當牌主或借用人的紀錄被別人新增、修改、歸還的時候。
+  {% else %}所有人在網站上新增、修改、歸還、轉借借牌紀錄的歷程。{% endif %}
+</p>
+
+<form method="get" class="filters card">
+  <label>紀錄 ID
+    <input name="loan" value="{{ filters.loan }}" placeholder="例如 12" inputmode="numeric">
+  </label>
+  <label>動作
+    <select name="action">
+      <option value="">全部</option>
+      {% for key, label in action_names.items() %}
+        <option value="{{ key }}" {{ 'selected' if key == filters.action }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="filter-actions">
+    <button>篩選</button>
+    <a href="{{ request.url.path }}" class="button secondary">清除</a>
+  </div>
+</form>
+
+{{ audit_table(entries, action_names, loan_prefix) }}
+{% endblock %}

@@ -416,3 +416,10 @@ h1::after {
     linear-gradient(270deg, var(--gold), transparent) left center / calc(50% - 12px) 1px no-repeat,
     linear-gradient(90deg, var(--blue), transparent) right center / calc(50% - 12px) 1px no-repeat;
 }
+
+/* 稽核紀錄的動作標籤 */
+.badge.action-create { color: var(--ok-text); border-color: var(--ok-text); }
+.badge.action-edit { color: var(--blue); border-color: var(--blue); }
+.badge.action-return, .badge.action-reclaim, .badge.action-return_approve { color: var(--gold); border-color: var(--gold); }
+.badge.action-return_reject, .badge.action-return_cancel { color: var(--warn); border-color: var(--warn); }
+p .who { vertical-align: middle; }

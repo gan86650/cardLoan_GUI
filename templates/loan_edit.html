@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import who, audit_table %}
+{% block title %}編輯 #{{ loan.id }}{% endblock %}
+{% block content %}
+<h1>✏️ 編輯 #{{ loan.id }} {{ loan.card_name }}</h1>
+<p class="muted">
+  {{ who(loan.lender_id, loan.lender_name) }} 借給 {{ who(loan.borrower_id, loan.borrower_name) }}，
+  {{ (loan.borrowed_at | fmt_time)[:10] }} 借出。牌主和借用人都可以修改，每次修改都會寫進稽核紀錄。
+</p>
+
+<form method="post" action="{{ action }}" class="card stack">
+  <div class="row">
+    <label>卡名<input name="card_name" value="{{ loan.card_name }}" required></label>
+    <label>數量<input type="number" name="quantity" min="1" value="{{ loan.quantity }}" required></label>
+  </div>
+  <div class="row">
+    <label>版本<input name="edition" value="{{ loan.edition or '' }}"></label>
+    <label>備註<input name="note" value="{{ loan.note or '' }}"></label>
+  </div>
+  <span class="hint">要換借用人請用「轉借」，要歸還請用「還牌」或「已取回」。</span>
+  <button>儲存修改</button>
+</form>
+
+<h2>📜 這筆紀錄的歷程</h2>
+{{ audit_table(history, action_names, show_loan=False) }}
+{% endblock %}

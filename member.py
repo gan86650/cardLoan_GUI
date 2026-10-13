@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 
 import admin_db
+import audit
 import avatars
 import database as db
 import guild_members
@@ -41,6 +42,7 @@ MEMBER_MENU = [
         ("/me", "🏠", "我的借牌", "借進來、借出去的牌"),
         ("/me/overview", "📋", "借牌總覽", "伺服器所有未還紀錄"),
         ("/me/between", "🔍", "查借牌", "你跟某人之間的借貸狀況"),
+        ("/me/audit", "📜", "稽核紀錄", "跟你有關的新增、修改、歸還紀錄"),
     ]),
     ("設定", [
         ("/me/settings", "⚙️", "個人設定", "改你在網站上顯示的名稱"),
@@ -158,10 +160,12 @@ async def create_record(
     if error := await guild_members.ensure_users(lender_id, borrower_id):
         flash(request, error, "error")
         return redirect(target)
+    items = [(card_name.strip(), quantity)]
     ids = await db.add_loans_bulk(
-        guild_id.strip(), lender_id, borrower_id, [(card_name.strip(), quantity)],
+        guild_id.strip(), lender_id, borrower_id, items,
         edition.strip() or None, note.strip() or None,
     )
+    await audit.log_created(request, ids, items, lender_id, borrower_id, edition.strip() or None)
     flash(request, f"已記錄 #{ids[0]}：{card_name.strip()} x{quantity}")
     return redirect(target)
 
@@ -203,6 +207,7 @@ async def create_batch(
         guild_id.strip(), lender_id, borrower_id, items,
         edition.strip() or None, note.strip() or None,
     )
+    await audit.log_created(request, ids, items, lender_id, borrower_id, edition.strip() or None)
     flash(request, f"已記錄 {len(ids)} 筆：" + "、".join(f"#{i}" for i in ids))
     return redirect("/me/batch")
 
@@ -249,6 +254,9 @@ async def request_return(
         return redirect(target)
 
     request_id = await member_db.create_return_request(loan_id, me, qty or loan["quantity"])
+    if request_id is not None:
+        await audit.log(request, "return_request", loan_id,
+                        f"申請還給 {loan['lender_name']}：{loan['card_name']} x{qty or loan['quantity']}")
     if request_id is None:
         flash(request, f"#{loan_id} 已經有一筆還牌申請在等 {loan['lender_name']} 確認", "error")
     else:
@@ -258,7 +266,8 @@ async def request_return(
 
 @router.post("/return/{request_id}/cancel")
 async def cancel_return(request: Request, request_id: int, me: str = Depends(require_member)):
-    if await member_db.cancel(request_id, me):
+    if req := await member_db.cancel(request_id, me):
+        await audit.log(request, "return_cancel", req["loan_id"], f"取消 {req['card_name']} 的還牌申請")
         flash(request, "已取消還牌申請")
     else:
         flash(request, "這筆申請已經處理過了", "error")
@@ -276,6 +285,12 @@ async def approvals_page(request: Request, me: str = Depends(require_member)):
 @router.post("/approvals/{request_id}/approve")
 async def approve_return(request: Request, request_id: int, me: str = Depends(require_member)):
     result = await member_db.approve(request_id, me)
+    if result is not None:
+        await audit.log(
+            request, "return_approve", result["loan_id"],
+            f"確認收回 {result['card_name']} {result['returned_qty']} 張"
+            + ("（全部還清）" if result["fully_returned"] else f"，剩 {result['remaining_qty']} 張"),
+        )
     if result is None:
         flash(request, "這筆申請已經處理過，或紀錄已經變更", "error")
     elif result["fully_returned"]:
@@ -288,6 +303,8 @@ async def approve_return(request: Request, request_id: int, me: str = Depends(re
 @router.post("/approvals/{request_id}/reject")
 async def reject_return(request: Request, request_id: int, me: str = Depends(require_member)):
     req = await member_db.reject(request_id, me)
+    if req is not None:
+        await audit.log(request, "return_reject", req["loan_id"], f"拒絕 {req['card_name']} 的還牌申請")
     if req is None:
         flash(request, "這筆申請已經處理過了", "error")
     else:
@@ -321,6 +338,12 @@ async def reclaim(
         return redirect(target)
 
     result = await db.reclaim_loan(loan_id, me, qty)
+    if result is not None:
+        await audit.log(
+            request, "reclaim", loan_id,
+            f"從 {loan['borrower_name']} 取回 {result['card_name']} {result['returned_qty']} 張"
+            + ("（全部還清）" if result["fully_returned"] else f"，剩 {result['remaining_qty']} 張"),
+        )
     if result is None:
         flash(request, f"#{loan_id} 已經取回了", "error")
     elif result["fully_returned"]:
@@ -371,6 +394,11 @@ async def transfer(
     if await db.transfer_loan(loan_id, me, new_borrower_id) is None:
         flash(request, f"#{loan_id} 狀態已變更，請重新整理後再試", "error")
     else:
+        me_user = await db.get_user(me)
+        await audit.log(
+            request, "transfer", loan_id,
+            f"{loan['card_name']} x{loan['quantity']}：借用人 {me_user['username']} → {new_user['username']}（牌主 {loan['lender_name']}）",
+        )
         flash(request, f"#{loan_id} {loan['card_name']} 已轉借給 {new_user['username']}（牌主還是 {loan['lender_name']}）")
     return redirect(target)
 
@@ -396,3 +424,51 @@ async def update_settings(request: Request, username: str = Form(...), me: str =
         user = await db.get_user(me)
         flash(request, f"顯示名稱已改成「{user['username']}」")
     return redirect("/me/settings")
+
+
+# ── 編輯借牌紀錄（牌主或借用人都可以改） ─────────────────────────────────────
+async def _editable_loan(loan_id: int, me: str):
+    loan = await admin_db.get_loan_any(loan_id)
+    if loan is None or loan["returned_at"] is not None or me not in (loan["lender_id"], loan["borrower_id"]):
+        return None
+    return loan
+
+
+@router.get("/loans/{loan_id}/edit", response_class=HTMLResponse)
+async def edit_loan_page(request: Request, loan_id: int, me: str = Depends(require_member)):
+    loan = await _editable_loan(loan_id, me)
+    if loan is None:
+        flash(request, f"#{loan_id} 不能編輯：只有牌主和借用人可以改還沒歸還的紀錄", "error")
+        return redirect("/me")
+    return await render(
+        request, "loan_edit.html", me, loan=loan, action=f"/me/loans/{loan_id}/edit",
+        history=await audit.search(loan_id=loan_id), action_names=audit.ACTIONS,
+    )
+
+
+@router.post("/loans/{loan_id}/edit")
+async def edit_loan(
+    request: Request,
+    loan_id: int,
+    card_name: str = Form(...),
+    edition: str = Form(""),
+    quantity: int = Form(...),
+    note: str = Form(""),
+    me: str = Depends(require_member),
+):
+    loan = await _editable_loan(loan_id, me)
+    if loan is None:
+        flash(request, f"#{loan_id} 不能編輯：只有牌主和借用人可以改還沒歸還的紀錄", "error")
+        return redirect("/me")
+    await audit.edit_loan(request, loan, card_name, edition, quantity, note)
+    return redirect(f"/me/loans/{loan_id}/edit")
+
+
+# ── 稽核紀錄（跟自己有關的） ────────────────────────────────────────────────
+@router.get("/audit", response_class=HTMLResponse)
+async def audit_page(request: Request, loan: str = "", action: str = "", me: str = Depends(require_member)):
+    raw = loan.strip().lstrip("#")
+    loan_id = int(raw) if raw.isdigit() else None
+    entries = await audit.search(loan_id=loan_id, action=action, involving=me)
+    return await render(request, "audit.html", me, entries=entries, action_names=audit.ACTIONS,
+                        filters={"loan": loan, "action": action}, loan_prefix="")
