@@ -423,3 +423,113 @@ h1::after {
 .badge.action-return, .badge.action-reclaim, .badge.action-return_approve { color: var(--gold); border-color: var(--gold); }
 .badge.action-return_reject, .badge.action-return_cancel { color: var(--warn); border-color: var(--warn); }
 p .who { vertical-align: middle; }
+
+/* ── 藍黑為底、漸層帶一點紫 ──────────────────────────────────────────────────
+   主色改回藍色（標題、框線、選單、按鈕），紫色只出現在漸層的尾端和頁面底部的光。 */
+:root {
+  --bg: #e4eaf4;
+  --vignette: rgba(20, 40, 90, .28);
+  --ember: rgba(110, 80, 210, .14);
+  --surface: #f3f6fb;
+  --surface-2: #e9eef7;
+  --text: #16203a;
+  --muted: #56627f;
+  --border: #aebcd8;
+  --gold: #2a5bc0;
+  --gold-soft: rgba(42, 91, 192, .3);
+  --blue: #1c6fb5;
+  --purple: #6a4fc9;
+  --crimson: #2350a8;
+  --glow: rgba(42, 91, 192, .22);
+  --row-hover: rgba(42, 91, 192, .07);
+  --btn-from: #2f63c9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #050912;
+    --vignette: rgba(0, 0, 0, .75);
+    --ember: rgba(120, 75, 230, .2);
+    --surface: #0c1322;
+    --surface-2: #111a2d;
+    --text: #e1e8f5;
+    --muted: #8492b0;
+    --border: #1e2a44;
+    --gold: #5c9dff;
+    --gold-soft: rgba(92, 157, 255, .3);
+    --blue: #7cc4ff;
+    --purple: #9b7bff;
+    --crimson: #1e4aa0;
+    --on-crimson: #eaf1ff;
+    --glow: rgba(70, 140, 255, .35);
+    --row-hover: rgba(92, 157, 255, .07);
+    --btn-from: #2c64d6;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #050912;
+  --vignette: rgba(0, 0, 0, .75);
+  --ember: rgba(120, 75, 230, .2);
+  --surface: #0c1322;
+  --surface-2: #111a2d;
+  --text: #e1e8f5;
+  --muted: #8492b0;
+  --border: #1e2a44;
+  --gold: #5c9dff;
+  --gold-soft: rgba(92, 157, 255, .3);
+  --blue: #7cc4ff;
+  --purple: #9b7bff;
+  --crimson: #1e4aa0;
+  --on-crimson: #eaf1ff;
+  --glow: rgba(70, 140, 255, .35);
+  --row-hover: rgba(92, 157, 255, .07);
+  --btn-from: #2c64d6;
+}
+
+/* 背景：上面藍黑，往下慢慢透出一點紫 */
+html {
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 45%, var(--vignette) 100%),
+    radial-gradient(ellipse 90% 45% at 70% 115%, var(--ember), transparent 70%),
+    linear-gradient(180deg, transparent 55%, var(--ember)),
+    url("/static/grain.svg"),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* 側邊欄：藍黑往下漸層到深紫 */
+.sidebar {
+  background: url("/static/grain.svg"), linear-gradient(180deg, #0a1222 0%, #0b1020 60%, #160f2c 100%);
+  border-right: 1px solid #1e2a44;
+  box-shadow: inset -1px 0 0 rgba(92, 157, 255, .18), 6px 0 24px rgba(0, 0, 0, .5);
+  --text: #e1e8f5; --muted: #8492b0; --gold: #5c9dff; --row-hover: rgba(92, 157, 255, .08);
+}
+.brand { text-shadow: 0 0 14px rgba(70, 140, 255, .45); }
+.sidebar nav a:hover { border-left-color: rgba(92, 157, 255, .5); }
+.sidebar nav a.active {
+  color: #eaf1ff;
+  background: linear-gradient(90deg, rgba(40, 90, 200, .7), rgba(110, 80, 210, .25) 70%, transparent);
+  border-left-color: #9b7bff;
+}
+.nav-group { color: #7cc4ff; }
+.switch { color: #5c9dff; border-color: rgba(92, 157, 255, .5); }
+.switch:hover { background: rgba(92, 157, 255, .12); }
+
+/* 標題分隔線：藍漸層到紫 */
+h1::after {
+  color: var(--purple);
+  background:
+    linear-gradient(270deg, var(--gold), transparent) left center / calc(50% - 12px) 1px no-repeat,
+    linear-gradient(90deg, var(--purple), transparent) right center / calc(50% - 12px) 1px no-repeat;
+}
+
+/* 按鈕：藍漸層到一點紫 */
+button, .button { background: linear-gradient(135deg, var(--btn-from), var(--crimson) 60%, #3c2f9c); }
+.theme-toggle button[aria-pressed="true"] { background: linear-gradient(135deg, var(--btn-from), #3c2f9c); }
+.count { background: #1e4aa0; color: #eaf1ff; border-color: #5c9dff; }
+
+/* 卡片右下角的角飾換成紫色，跟左上的藍色呼應 */
+.card::after { border-color: var(--purple); }
+
+/* 選單圖示：染成淡藍色 */
+.sidebar nav a span, .tile-icon { filter: grayscale(1) sepia(.6) hue-rotate(180deg) saturate(1.6) brightness(1.05); }
+.sidebar nav a.active span, .tile:hover .tile-icon { filter: grayscale(.4) sepia(.3) hue-rotate(180deg) saturate(1.4); }
